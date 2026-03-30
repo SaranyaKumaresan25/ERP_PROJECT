@@ -425,7 +425,7 @@ class SaleItem(db.Model):
     sale_id = db.Column(db.Integer, db.ForeignKey('sales.id'), nullable=False)
     product_id = db.Column(db.Integer, db.ForeignKey('products.id'), nullable=False)
     batch_id = db.Column(db.Integer, db.ForeignKey('batches.id'))
-    cost_price = db.Column(db.Float, nullable=True)
+    cost_price = db.Column(db.Float, nullable=True)  # ← FROM FRIEND (for profit tracking)
     quantity = db.Column(db.Integer, nullable=False)
     unit_price = db.Column(db.Numeric(10,2), nullable=False)
     discount_percent = db.Column(db.Numeric(5,2), default=0)
@@ -443,6 +443,7 @@ class SaleItem(db.Model):
             'product_id': self.product_id,
             'product_name': self.product.product_name if self.product else None,
             'batch_number': self.batch.batch_number if self.batch else None,
+            'cost_price': self.cost_price,
             'quantity': self.quantity,
             'unit_price': float(self.unit_price),
             'discount_percent': float(self.discount_percent),
@@ -450,7 +451,6 @@ class SaleItem(db.Model):
             'tax_amount': float(self.tax_amount),
             'total_price': float(self.total_price)
         }
-
 
 # =====================================================
 # ACTIVITY LOG MODEL
