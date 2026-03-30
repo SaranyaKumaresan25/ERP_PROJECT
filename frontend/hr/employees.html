@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management - Profit Recovery ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --dark-sidebar: #0c1a19;
+            --dark-sidebar-hover: #122e2b;
+            --dark-sidebar-active: #163d39;
+            --gray: #64748b;
+            --light-gray: #f1f5f9;
+            --border: #e2e8f0;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--light-gray); color: var(--dark); }
+        .sidebar {
+            width: 280px;
+            background: var(--dark-sidebar);
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+        .sidebar-brand { padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem; }
+        .sidebar-brand h2 { color: white; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .sidebar-brand h2 i { color: var(--primary); }
+        .sidebar-brand p { color: rgba(255,255,255,0.5); font-size: 0.7rem; margin-top: 0.25rem; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 0.25rem; padding: 0 1rem 1rem; }
+        .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; transition: all 0.2s; font-size: 0.9rem; }
+        .nav-item i { width: 20px; font-size: 1rem; }
+        .nav-item:hover { background: var(--dark-sidebar-hover); color: white; }
+        .nav-item.active { background: var(--dark-sidebar-active); color: white; border-left: 3px solid var(--primary); }
+        .sidebar-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); background: var(--dark-sidebar); }
+        .user-info { display: flex; align-items: center; gap: 0.75rem; color: rgba(255,255,255,0.7); margin-bottom: 1rem; }
+        .user-avatar { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; font-size: 1rem; }
+        .user-name { font-weight: 600; color: white; font-size: 0.9rem; }
+        .user-role { font-size: 0.7rem; opacity: 0.6; }
+        .logout-btn { width: 100%; padding: 0.75rem; background: rgba(239,68,68,0.2); border: none; border-radius: 8px; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem; }
+        .main-content { margin-left: 280px; padding: 2rem; min-height: 100vh; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .page-title h1 { font-size: 1.75rem; font-weight: 700; }
+        .page-title p { color: var(--gray); font-size: 0.85rem; margin-top: 0.25rem; }
+        .date-badge { background: var(--white); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; color: var(--gray); border: 1px solid var(--border); }
+        .search-bar { margin-bottom: 1.5rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+        .search-input { flex: 1; max-width: 300px; padding: 0.6rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.9rem; }
+        .search-input:focus { outline: none; border-color: var(--primary); }
+        .filter-group { display: flex; gap: 0.5rem; }
+        .status-filter { padding: 0.6rem 1rem; border: 1px solid var(--border); border-radius: 8px; background: var(--white); cursor: pointer; }
+        .quick-btn { padding: 0.6rem 1.2rem; border: none; border-radius: 8px; font-size: 0.9rem; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+        .quick-btn.primary { background: var(--primary); color: white; }
+        .quick-btn.primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .employee-count { margin-bottom: 1rem; font-size: 0.85rem; color: var(--gray); }
+        .employees-table-container { background: var(--white); border-radius: 16px; border: 1px solid var(--border); overflow-x: auto; }
+        .employees-table { width: 100%; border-collapse: collapse; min-width: 800px; }
+        .employees-table th { text-align: left; padding: 1rem; background: var(--light-gray); font-weight: 600; font-size: 0.85rem; color: var(--gray); border-bottom: 1px solid var(--border); }
+        .employees-table td { padding: 1rem; border-bottom: 1px solid var(--border); font-size: 0.85rem; }
+        .employees-table tr:hover { background: var(--light-gray); }
+        .role-badge { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.7rem; font-weight: 600; display: inline-block; }
+        .role-badge.active { background: var(--success); color: white; }
+        .role-badge.on_leave { background: var(--warning); color: white; }
+        .role-badge.terminated { background: var(--danger); color: white; }
+        .action-btns { display: flex; gap: 0.5rem; }
+        .action-btn { background: none; border: none; padding: 0.5rem; border-radius: 6px; cursor: pointer; color: var(--gray); transition: all 0.2s; font-size: 1rem; }
+        .action-btn:hover { background: var(--light-gray); color: var(--primary); }
+        .pagination-controls { display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2rem; padding: 1rem; flex-wrap: wrap; }
+        .pagination-controls button { padding: 0.5rem 1rem; background: var(--white); border: 1px solid var(--border); border-radius: 6px; cursor: pointer; }
+        .pagination-controls button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000; backdrop-filter: blur(4px); }
+        .modal.active { display: flex; }
+        .modal-content { background: var(--white); border-radius: 16px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; }
+        .modal-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: var(--white); }
+        .modal-header h2 { font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .close-btn { background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--gray); width: 32px; height: 32px; border-radius: 8px; }
+        .close-btn:hover { background: var(--light-gray); color: var(--danger); }
+        .modal-body { padding: 1.5rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.85rem; }
+        .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-size: 0.85rem; font-family: inherit; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .modal-footer { padding: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 1rem; }
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1100; }
+        .toast { background: var(--white); border-radius: 8px; padding: 1rem 1.5rem; margin-bottom: 0.5rem; box-shadow: var(--shadow-md); display: flex; align-items: center; gap: 0.75rem; animation: slideIn 0.3s ease; border-left: 4px solid var(--success); }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @media (max-width: 1024px) { .sidebar { transform: translateX(-100%); } .main-content { margin-left: 0; } }
+        @media (max-width: 768px) { .main-content { padding: 1rem; } .form-row { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand"><h2><i class="fas fa-chart-line"></i> Profit Recovery ERP</h2><p>Enterprise Resource Planning</p></div>
+        <div class="sidebar-nav">
+            <a href="/hr/dashboard" class="nav-item"><i class="fas fa-users"></i><span>Dashboard</span></a>
+            <a href="/hr/employees" class="nav-item active"><i class="fas fa-user-tie"></i><span>Employees</span></a>
+            <a href="/hr/attendance" class="nav-item"><i class="fas fa-calendar-check"></i><span>Attendance</span></a>
+            <a href="/hr/leaves" class="nav-item"><i class="fas fa-umbrella-beach"></i><span>Leaves</span></a>
+            <a href="/hr/payroll" class="nav-item"><i class="fas fa-money-bill-wave"></i><span>Payroll</span></a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Admin User</div>
+                    <div class="user-role" id="loggedInUserRole">Administrator</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Employee Management</h1>
+                <p>Manage employee records, profiles, and employment details</p>
+            </div>
+            <div class="date-badge" id="currentDate"></div>
+            <button class="quick-btn primary" onclick="showAddEmployeeModal()"><i class="fas fa-user-plus"></i> Add New Employee</button>
+        </div>
+
+        <div class="search-bar">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search by name, email, employee code..." onkeyup="debounceSearch()">
+            <div class="filter-group">
+                <select id="statusFilter" class="status-filter" onchange="loadEmployees()">
+                    <option value="active">✅ Active Employees</option>
+                    <option value="on_leave">⭕ On Leave</option>
+                    <option value="terminated">❌ Terminated</option>
+                    <option value="all">👥 All Employees</option>
+                </select>
+                <select id="departmentFilter" class="status-filter" onchange="loadEmployees()">
+                    <option value="">All Departments</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="employee-count"><i class="fas fa-users"></i> Total Employees: <span id="employeeCount">0</span></div>
+
+        <div class="employees-table-container">
+            <table class="employees-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Employee Code</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Department</th>
+                        <th>Designation</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="employeesTableBody">
+                    <tr><td colspan="8" style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Loading employees...</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <div id="paginationControls"></div>
+    </div>
+
+<div class="modal" id="employeeModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modalTitle"><i class="fas fa-user-plus"></i> Add Employee</h2>
+            <button class="close-btn" onclick="closeEmployeeModal()"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="employeeForm">
+                <input type="hidden" id="employeeId">
+                
+                <!-- REQUIRED FIELDS SECTION -->
+                <div style="background: #fef3c7; padding: 0.5rem 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                    <small style="color: #92400e;"><i class="fas fa-star-of-life" style="font-size: 0.6rem; color: #ef4444;"></i> Required fields for employee creation</small>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" id="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name *</label>
+                        <input type="text" id="lastName" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="phone">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Username *</label>
+                        <input type="text" id="username" required placeholder="e.g., john_doe" autocomplete="username">
+                        <small style="color: var(--gray);">Login username</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="password" id="password" required placeholder="Enter password" autocomplete="new-password">
+                        <small style="color: var(--gray);">Minimum 6 characters</small>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>System Role *</label>
+                    <select id="userRole" required>
+                        <option value="employee">👤 Employee</option>
+                        <option value="sales_staff">💰 Sales Staff</option>
+                        <option value="inventory_manager">📦 Inventory Manager</option>
+                        <option value="hr_manager">👥 HR Manager</option>
+                        <option value="admin">🔧 Administrator</option>
+                    </select>
+                    <small style="color: var(--gray);">Determines system access level</small>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Department *</label>
+                        <select id="departmentId" required>
+                            <option value="">Select Department</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Designation</label>
+                        <input type="text" id="designation" placeholder="e.g., Software Engineer">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Employee Type</label>
+                        <select id="employeeType">
+                            <option value="permanent">Permanent</option>
+                            <option value="contract">Contract</option>
+                            <option value="trainee">Trainee</option>
+                            <option value="intern">Intern</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Hire Date *</label>
+                        <input type="date" id="hireDate" required>
+                    </div>
+                </div>
+                
+                <!-- OPTIONAL FIELDS SECTION -->
+                <div style="margin-top: 1.5rem; margin-bottom: 1rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;" onclick="toggleOptionalFields()">
+                        <i class="fas fa-chevron-down" id="optionalToggleIcon"></i>
+                        <span style="font-weight: 600; color: var(--gray);">Optional Details (can be filled later)</span>
+                        <small style="color: var(--gray);">Click to expand</small>
+                    </div>
+                </div>
+                
+                <div id="optionalFields" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Date of Birth</label>
+                            <input type="date" id="dateOfBirth">
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="gender">
+                                <option value="">Select</option>
+                                <option value="male">Male</option>
+                                <option value="female">Female</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Marital Status</label>
+                        <select id="maritalStatus">
+                            <option value="">Select</option>
+                            <option value="single">Single</option>
+                            <option value="married">Married</option>
+                            <option value="divorced">Divorced</option>
+                            <option value="widowed">Widowed</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Emergency Contact Name</label>
+                        <input type="text" id="emergencyContactName" placeholder="e.g., John Doe">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Emergency Contact Phone</label>
+                            <input type="tel" id="emergencyContactPhone" placeholder="e.g., 9876543210">
+                        </div>
+                        <div class="form-group">
+                            <label>Emergency Contact Relation</label>
+                            <input type="text" id="emergencyContactRelation" placeholder="e.g., Father, Spouse">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Address</label>
+                        <textarea id="addressLine1" rows="2" placeholder="Street address"></textarea>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" id="city">
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <input type="text" id="state">
+                        </div>
+                        <div class="form-group">
+                            <label>Pincode</label>
+                            <input type="text" id="pincode">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Basic Salary (₹)</label>
+                            <input type="number" id="basicSalary" step="0.01">
+                        </div>
+                        <div class="form-group">
+                            <label>CTC (₹)</label>
+                            <input type="number" id="ctc" step="0.01">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Bank Name</label>
+                        <input type="text" id="bankName" placeholder="e.g., State Bank of India">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Bank Account Number</label>
+                            <input type="text" id="bankAccount">
+                        </div>
+                        <div class="form-group">
+                            <label>IFSC Code</label>
+                            <input type="text" id="ifscCode">
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>PAN Number</label>
+                            <input type="text" id="panNumber">
+                        </div>
+                        <div class="form-group">
+                            <label>UAN Number</label>
+                            <input type="text" id="uanNumber">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>ESI Number</label>
+                        <input type="text" id="esiNumber">
+                    </div>
+                </div>
+                
+                <div style="margin-top: 1rem; padding: 0.5rem; background: var(--light-gray); border-radius: 8px;">
+                    <small><i class="fas fa-info-circle"></i> Note: Only fields marked with * are required. Other details can be added later by editing the employee.</small>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn" onclick="closeEmployeeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveEmployee()">Save Employee</button>
+        </div>
+    </div>
+</div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+    let currentPage = 1, totalPages = 1, currentSearch = '', currentStatus = 'active';
+    let departments = [];
+
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${type}`;
+        toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i><span>${message}</span>`;
+        container.appendChild(toast);
+        setTimeout(() => toast.remove(), 3000);
+    }
+
+    async function checkAuth() {
+        const response = await fetch('/api/check-auth');
+        const data = await response.json();
+        if (!data.authenticated) window.location.href = '/login';
+        document.getElementById('userName').textContent = data.user.full_name;
+        document.getElementById('userAvatar').textContent = data.user.full_name.charAt(0);
+        document.getElementById('loggedInUserRole').textContent = data.user.role.replace('_', ' ').toUpperCase();
+    }
+
+    async function loadDepartments() {
+        console.log("Loading departments...");
+        
+        try {
+            const response = await fetch('/api/hr/departments');
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            const departmentsData = await response.json();
+            console.log("Departments data:", departmentsData);
+            
+            const deptSelect = document.getElementById('departmentId');
+            const filterSelect = document.getElementById('departmentFilter');
+            
+            if (!deptSelect) return;
+            
+            if (departmentsData && departmentsData.length > 0) {
+                deptSelect.innerHTML = '<option value="">Select Department</option>';
+                filterSelect.innerHTML = '<option value="">All Departments</option>';
+                
+                departmentsData.forEach(dept => {
+                    const option = `<option value="${dept.id}">${dept.name} (${dept.code || ''})</option>`;
+                    deptSelect.innerHTML += option;
+                    filterSelect.innerHTML += option;
+                });
+                console.log("Departments loaded:", departmentsData.length);
+            } else {
+                deptSelect.innerHTML = '<option value="">No departments available</option>';
+                filterSelect.innerHTML = '<option value="">All Departments</option>';
+                showToast('No departments found. Please add departments first.', 'warning');
+            }
+        } catch (error) {
+            console.error('Failed to load departments:', error);
+            showToast('Failed to load departments', 'error');
+        }
+    }
+
+    async function loadEmployees() {
+        const tbody = document.getElementById('employeesTableBody');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>';
+        
+        const departmentFilter = document.getElementById('departmentFilter');
+        const departmentValue = departmentFilter ? departmentFilter.value : '';
+        
+        let url = `/api/hr/employees?page=${currentPage}&per_page=20&status=${currentStatus}&search=${encodeURIComponent(currentSearch)}`;
+        if (departmentValue) url += `&department=${departmentValue}`;
+        
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+            
+            const data = await response.json();
+            console.log("API Response:", data);
+            
+            const employeeCountSpan = document.getElementById('employeeCount');
+            if (employeeCountSpan) {
+                employeeCountSpan.textContent = data.total || 0;
+            }
+            
+            if (!data.items || data.items.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--gray);"><i class="fas fa-users"></i> No employees found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = data.items.map(emp => {
+                const statusClass = emp.employment_status || 'active';
+                const statusDisplay = (emp.employment_status || 'active').toUpperCase();
+                const deptName = emp.department_name || '-';
+                const position = emp.position || emp.designation || '-';
+                const fullName = emp.full_name || emp.username || 'Unknown';
+                
+                return `
+                    <tr>
+                        <td>${emp.id}</td>
+                        <td><strong>${emp.employee_code || '-'}</strong></td>
+                        <td>${escapeHtml(fullName)}</td>
+                        <td>${escapeHtml(emp.email || '-')}</td>
+                        <td>${escapeHtml(deptName)}</td>
+                        <td>${escapeHtml(position)}</td>
+                        <td><span class="role-badge ${statusClass}">${statusDisplay}</span></td>
+                        <td class="action-btns">
+                            <button class="action-btn" onclick="viewEmployee(${emp.id})" title="View Details"><i class="fas fa-eye"></i></button>
+                            <button class="action-btn" onclick="editEmployee(${emp.id})" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn" onclick="toggleEmployeeStatus(${emp.id}, '${statusClass}')" title="${statusClass === 'active' ? 'Deactivate' : 'Activate'}"><i class="fas ${statusClass === 'active' ? 'fa-ban' : 'fa-check-circle'}"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            currentPage = data.page;
+            totalPages = data.pages;
+            updatePagination();
+            
+        } catch (error) {
+            console.error("Error in loadEmployees:", error);
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Failed to load employees</td></tr>';
+            showToast('Failed to load employees', 'error');
+        }
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    }
+
+    function updatePagination() {
+        const paginationDiv = document.getElementById('paginationControls');
+        if (!paginationDiv) return;
+        
+        if (totalPages <= 1) {
+            paginationDiv.innerHTML = '';
+            return;
+        }
+        
+        paginationDiv.innerHTML = `
+            <div class="pagination-controls">
+                <button onclick="loadPage(1)" ${currentPage <= 1 ? 'disabled' : ''}><i class="fas fa-angle-double-left"></i></button>
+                <button onclick="loadPage(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''}>Prev</button>
+                <span style="padding: 0 1rem;">Page ${currentPage} of ${totalPages}</span>
+                <button onclick="loadPage(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''}>Next</button>
+                <button onclick="loadPage(${totalPages})" ${currentPage >= totalPages ? 'disabled' : ''}><i class="fas fa-angle-double-right"></i></button>
+            </div>
+        `;
+    }
+
+    function loadPage(page) { currentPage = page; loadEmployees(); }
+
+    function debounceSearch() { 
+        clearTimeout(window.searchTimeout); 
+        window.searchTimeout = setTimeout(() => { 
+            currentSearch = document.getElementById('searchInput').value; 
+            loadEmployees(); 
+        }, 500); 
+    }
+
+    function showAddEmployeeModal() {
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-plus"></i> Add Employee';
+        document.getElementById('employeeForm').reset();
+        document.getElementById('employeeId').value = '';
+        loadDepartments();
+        document.getElementById('employeeModal').classList.add('active');
+    }
+
+   async function editEmployee(id) {
+    console.log("Editing employee:", id);
+    
+    try {
+        const response = await fetch(`/api/hr/employees/${id}`);
+        const emp = await response.json();
+        
+        console.log("Employee data received:", emp);
+        console.log("User role from API:", emp.user_role);
+        console.log("Role from API:", emp.role);
+        
+        if (!emp) { 
+            showToast('Employee not found', 'error'); 
+            return; 
+        }
+        
+        document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Employee';
+        document.getElementById('employeeId').value = emp.id;
+        
+        // Split name
+        const fullName = emp.full_name || '';
+        const nameParts = fullName.split(' ', 2);
+        document.getElementById('firstName').value = nameParts[0] || '';
+        document.getElementById('lastName').value = nameParts[1] || '';
+        
+        document.getElementById('email').value = emp.email || '';
+        document.getElementById('phone').value = emp.phone || '';
+        document.getElementById('username').value = emp.username || '';
+        document.getElementById('password').value = '';
+        
+        // Set role
+        const userRole = emp.user_role || emp.role || 'employee';
+        console.log("Setting role dropdown to:", userRole);
+        const roleSelect = document.getElementById('userRole');
+        if (roleSelect) {
+            roleSelect.value = userRole;
+        }
+        
+        // Load optional fields if they exist
+        document.getElementById('dateOfBirth').value = emp.date_of_birth || '';
+        document.getElementById('gender').value = emp.gender || '';
+        document.getElementById('maritalStatus').value = emp.marital_status || '';
+        document.getElementById('emergencyContactName').value = emp.emergency_contact_name || '';
+        document.getElementById('emergencyContactPhone').value = emp.emergency_contact_phone || '';
+        document.getElementById('emergencyContactRelation').value = emp.emergency_contact_relation || '';
+        document.getElementById('addressLine1').value = emp.address_line1 || '';
+        document.getElementById('city').value = emp.city || '';
+        document.getElementById('state').value = emp.state || '';
+        document.getElementById('pincode').value = emp.pincode || '';
+        document.getElementById('basicSalary').value = emp.basic_salary || '';
+        document.getElementById('ctc').value = emp.ctc || '';
+        document.getElementById('bankName').value = emp.bank_name || '';
+        document.getElementById('bankAccount').value = emp.bank_account || '';
+        document.getElementById('ifscCode').value = emp.ifsc_code || '';
+        document.getElementById('panNumber').value = emp.pan_number || '';
+        document.getElementById('uanNumber').value = emp.uan_number || '';
+        document.getElementById('esiNumber').value = emp.esi_number || '';
+        document.getElementById('departmentId').value = emp.department_id || '';
+        document.getElementById('designation').value = emp.designation || emp.position || '';
+        document.getElementById('employeeType').value = emp.employment_type || 'permanent';
+        document.getElementById('hireDate').value = emp.hire_date || '';
+        
+        // Show optional fields section if any optional data exists
+        const hasOptionalData = emp.date_of_birth || emp.gender || emp.marital_status || 
+                                emp.emergency_contact_name || emp.address_line1 || emp.basic_salary;
+        if (hasOptionalData) {
+            document.getElementById('optionalFields').style.display = 'block';
+            document.getElementById('optionalToggleIcon').className = 'fas fa-chevron-up';
+        } else {
+            document.getElementById('optionalFields').style.display = 'none';
+            document.getElementById('optionalToggleIcon').className = 'fas fa-chevron-down';
+        }
+        
+        await loadDepartments();
+        document.getElementById('employeeModal').classList.add('active');
+        
+    } catch (error) {
+        console.error("Error loading employee:", error);
+        showToast('Failed to load employee details', 'error');
+    }
+}
+    async function viewEmployee(id) {
+        const response = await fetch(`/api/hr/employees/${id}`);
+        const emp = await response.json();
+        alert(`Employee Details:\n\nName: ${emp.full_name}\nEmail: ${emp.email}\nDepartment: ${emp.department_name}\nDesignation: ${emp.designation}\nHire Date: ${emp.hire_date}\nBasic Salary: ₹${emp.basic_salary}\nCTC: ₹${emp.ctc}\nStatus: ${emp.employment_status}`);
+    }
+
+    async function saveEmployee() {
+    const employeeId = document.getElementById('employeeId').value;
+    
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value;
+    const selectedRole = document.getElementById('userRole').value;
+    
+    console.log("=== SAVE EMPLOYEE DEBUG ===");
+    console.log("Selected role from dropdown:", selectedRole);
+    
+    if (!username) {
+        showToast('Username is required', 'error');
+        return;
+    }
+    
+    if (!employeeId && (!password || password.length < 6)) {
+        showToast('Password must be at least 6 characters', 'error');
+        return;
+    }
+    
+    const departmentId = document.getElementById('departmentId').value;
+    
+    const data = {
+        // Required fields
+        first_name: document.getElementById('firstName').value,
+        last_name: document.getElementById('lastName').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        username: username,
+        password: password,
+        user_role: selectedRole,
+        role: selectedRole,
+        department_id: departmentId ? parseInt(departmentId) : null,
+        designation: document.getElementById('designation').value,
+        employee_type: document.getElementById('employeeType').value,
+        hire_date: document.getElementById('hireDate').value,
+        
+        // Optional fields (can be null)
+        date_of_birth: document.getElementById('dateOfBirth').value || null,
+        gender: document.getElementById('gender').value || null,
+        marital_status: document.getElementById('maritalStatus').value || null,
+        emergency_contact_name: document.getElementById('emergencyContactName').value || null,
+        emergency_contact_phone: document.getElementById('emergencyContactPhone').value || null,
+        emergency_contact_relation: document.getElementById('emergencyContactRelation').value || null,
+        address_line1: document.getElementById('addressLine1').value || null,
+        city: document.getElementById('city').value || null,
+        state: document.getElementById('state').value || null,
+        pincode: document.getElementById('pincode').value || null,
+        basic_salary: document.getElementById('basicSalary').value || null,
+        ctc: document.getElementById('ctc').value || null,
+        bank_name: document.getElementById('bankName').value || null,
+        bank_account: document.getElementById('bankAccount').value || null,
+        ifsc_code: document.getElementById('ifscCode').value || null,
+        pan_number: document.getElementById('panNumber').value || null,
+        uan_number: document.getElementById('uanNumber').value || null,
+        esi_number: document.getElementById('esiNumber').value || null
+    };
+    
+    console.log("Sending data:", data);
+    
+    // Validate only required fields
+    if (!data.first_name || !data.last_name || !data.email || !data.hire_date) {
+        showToast('Please fill all required fields', 'error');
+        return;
+    }
+    
+    const url = employeeId ? `/api/hr/employees/${employeeId}` : '/api/hr/employees';
+    const method = employeeId ? 'PUT' : 'POST';
+    
+    try {
+        const response = await fetch(url, {
+            method: method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            const result = await response.json();
+            showToast(employeeId ? 'Employee updated successfully' : `Employee added! Username: ${data.username} / Password: ${data.password}`);
+            closeEmployeeModal();
+            loadEmployees();
+            document.getElementById('employeeForm').reset();
+            // Reset optional fields visibility
+            document.getElementById('optionalFields').style.display = 'none';
+            document.getElementById('optionalToggleIcon').className = 'fas fa-chevron-down';
+        } else {
+            const error = await response.json();
+            showToast(error.error || 'Failed to save employee', 'error');
+        }
+    } catch (error) {
+        console.error("Save error:", error);
+        showToast('Network error', 'error');
+    }
+}
+    
+    async function toggleEmployeeStatus(id, currentStatus) {
+        const newStatus = currentStatus === 'active' ? 'terminated' : 'active';
+        if (!confirm(`Are you sure you want to ${newStatus === 'active' ? 'activate' : 'terminate'} this employee?`)) return;
+        const response = await fetch(`/api/hr/employees/${id}`, { 
+            method: 'PUT', 
+            headers: { 'Content-Type': 'application/json' }, 
+            body: JSON.stringify({ employment_status: newStatus }) 
+        });
+        if (response.ok) { 
+            showToast(`Employee ${newStatus === 'active' ? 'activated' : 'terminated'} successfully`); 
+            loadEmployees(); 
+        } else {
+            showToast('Failed to update status', 'error');
+        }
+    }
+
+    function closeEmployeeModal() { 
+        document.getElementById('employeeModal').classList.remove('active'); 
+    }
+    function toggleOptionalFields() {
+    const optionalDiv = document.getElementById('optionalFields');
+    const icon = document.getElementById('optionalToggleIcon');
+    if (optionalDiv.style.display === 'none') {
+        optionalDiv.style.display = 'block';
+        icon.className = 'fas fa-chevron-up';
+    } else {
+        optionalDiv.style.display = 'none';
+        icon.className = 'fas fa-chevron-down';
+    }
+}
+
+    async function logout() { 
+        await fetch('/api/logout', { method: 'POST' }); 
+        window.location.href = '/login'; 
+    }
+
+    document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', { 
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+    });
+    
+    checkAuth();
+    loadDepartments();
+    loadEmployees();
+    </script>
+</body>
+</html>

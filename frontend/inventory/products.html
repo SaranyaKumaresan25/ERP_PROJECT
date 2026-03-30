@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Products – Profit Recovery ERP</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--brand:#0f766e;--brand-dark:#0d5f58;--brand-light:#ccfbf1;--surface:#fff;--bg:#f0faf9;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;--sidebar:#0c1a19;--sidebar-hover:#122e2b;--sidebar-active:#163d39;--red:#ef4444;--green:#10b981;--yellow:#f59e0b;--blue:#3b82f6;--shadow:0 2px 10px rgba(15,118,110,0.08);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);}
+.app{display:flex;min-height:100vh;}
+/* SIDEBAR */
+.sidebar{width:240px;background:var(--sidebar);position:fixed;height:100vh;display:flex;flex-direction:column;}
+.sb-brand{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.sb-brand-inner{display:flex;align-items:center;gap:11px;}
+.sb-ico{width:36px;height:36px;background:var(--brand);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-ico i{font-size:15px;color:#fff;}
+.sb-title{font-size:13px;font-weight:600;color:#fff;}
+.sb-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;}
+.sb-nav{padding:14px 10px;flex:1;}
+.sb-sect{font-size:9px;font-weight:600;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.8px;padding:0 10px;margin:10px 0 5px;}
+.nav-link{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:rgba(255,255,255,0.58);text-decoration:none;font-size:13px;transition:all 0.15s;margin-bottom:2px;}
+.nav-link i{width:17px;font-size:13px;text-align:center;}
+.nav-link:hover{background:var(--sidebar-hover);color:rgba(255,255,255,0.88);}
+.nav-link.active{background:var(--sidebar-active);color:#fff;font-weight:500;}
+.nav-link.active i{color:var(--brand-light);}
+.sb-foot{padding:12px 10px;border-top:1px solid rgba(255,255,255,0.06);}
+.sb-user{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;}
+.sb-avatar{width:30px;height:30px;background:var(--brand);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0;}
+.sb-uname{font-size:11.5px;color:rgba(255,255,255,0.78);font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sb-logout{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.35);font-size:13px;padding:4px;}
+.sb-logout:hover{color:var(--red);}
+/* MAIN */
+.main{margin-left:240px;padding:26px 30px;width:100%;}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
+.page-title h1{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.3px;}
+.page-title p{font-size:12px;color:var(--muted);margin-top:3px;}
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.user-chip{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);padding:5px 12px;border-radius:20px;box-shadow:var(--shadow);}
+.user-chip .av{width:26px;height:26px;border-radius:50%;background:var(--brand);color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;}
+.user-chip span{font-size:12px;font-weight:500;color:var(--text);}
+/* CARDS */
+.card{background:var(--surface);border-radius:12px;padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);margin-bottom:18px;}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.card-head h3{font-size:14px;font-weight:600;color:var(--text);}
+.card-head p{font-size:11.5px;color:var(--muted);margin-top:2px;}
+/* CSV FORMAT BOX */
+.csv-format{background:#f8fafc;border:1px solid var(--border);border-radius:8px;padding:11px 14px;font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.8;}
+.csv-format code{background:var(--border);padding:1px 5px;border-radius:4px;font-size:11px;color:var(--text);}
+/* UPLOAD AREA */
+.upload-area{border:2px dashed var(--border);border-radius:10px;padding:22px;text-align:center;cursor:pointer;transition:all 0.18s;background:#fafbfc;}
+.upload-area:hover{border-color:var(--brand);background:var(--brand-light);}
+.upload-area i{font-size:26px;color:var(--brand);margin-bottom:8px;display:block;}
+.upload-area p{font-size:13px;color:var(--text);font-weight:500;margin-bottom:3px;}
+.upload-area small{font-size:11px;color:var(--muted);}
+/* CSV PREVIEW */
+.csv-preview-wrap{background:#f8fafc;border-radius:8px;padding:12px;margin-top:14px;max-height:260px;overflow-y:auto;}
+.csv-preview-table{width:100%;border-collapse:collapse;font-size:11.5px;}
+.csv-preview-table th{background:var(--border);padding:7px;text-align:left;position:sticky;top:0;font-weight:600;color:var(--muted);}
+.csv-preview-table td{padding:6px 7px;border-bottom:1px solid var(--border);}
+/* QUICK ADD GRID */
+.qa-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:10px;}
+.qa-input,.qa-select{padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'Sora',sans-serif;font-size:12.5px;color:var(--text);background:#fafbfc;outline:none;width:100%;transition:border-color 0.15s;}
+.qa-input:focus,.qa-select:focus{border-color:var(--brand);background:#fff;}
+/* MATCH INFO */
+.match-info{margin-top:10px;padding:10px 12px;border-radius:8px;font-size:12px;display:none;line-height:1.6;}
+.match-exact{background:#dcfce7;color:#166534;border-left:3px solid var(--green);}
+.match-different{background:#fef3c7;color:#92400e;border-left:3px solid var(--yellow);}
+/* BUTTONS */
+.btn{padding:8px 14px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);cursor:pointer;font-family:'Sora',sans-serif;font-size:12.5px;font-weight:500;color:var(--text);display:inline-flex;align-items:center;gap:6px;transition:all 0.15s;}
+.btn:hover{border-color:var(--brand);color:var(--brand);}
+.btn-primary{background:var(--brand);color:#fff;border-color:var(--brand);}
+.btn-primary:hover{background:var(--brand-dark);border-color:var(--brand-dark);color:#fff;}
+.btn-success{background:var(--green);color:#fff;border-color:var(--green);}
+.btn-success:hover{background:#059669;}
+.btn-sm{padding:6px 10px;font-size:11.5px;}
+.btn:disabled{opacity:0.6;cursor:not-allowed;}
+/* FILTERS */
+.filters{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.filters select,.filters input{padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;background:var(--surface);font-family:'Sora',sans-serif;font-size:12.5px;color:var(--text);outline:none;}
+.filters input{flex:1;min-width:200px;}
+.filters select:focus,.filters input:focus{border-color:var(--brand);}
+/* TABLE */
+.table-card{background:var(--surface);border-radius:12px;padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);overflow-x:auto;}
+.table-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+.table-top h3{font-size:13.5px;font-weight:600;color:var(--text);}
+table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:1000px;}
+thead tr{background:#f8fafc;}
+th{text-align:left;padding:10px 12px;font-weight:600;color:var(--muted);font-size:11.5px;border-bottom:1.5px solid var(--border);}
+td{padding:10px 12px;border-bottom:1px solid #f1f5f9;color:var(--text);}
+tbody tr:hover{background:#fafbfc;}
+.prod-name{font-weight:600;color:var(--text);font-size:13px;}
+.prod-sku{font-size:10.5px;color:var(--muted);margin-top:2px;}
+/* BADGES */
+.badge{padding:3px 8px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block;}
+.badge-success{background:#dcfce7;color:#166534;}
+.badge-warning{background:#fef3c7;color:#92400e;}
+.badge-danger{background:#fee2e2;color:#b91c1c;}
+.badge-info{background:#dbeafe;color:#1e40af;}
+/* EXPIRY DOT */
+.exp-wrap{display:flex;align-items:center;gap:5px;}
+.exp-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.dot-green{background:var(--green);}
+.dot-yellow{background:var(--yellow);}
+.dot-red{background:var(--red);}
+/* SUPPLIER TAGS */
+.sup-tag{display:inline-block;background:#f1f5f9;padding:2px 7px;border-radius:10px;font-size:10.5px;margin:2px;cursor:pointer;color:var(--muted);font-weight:500;transition:all 0.15s;}
+.sup-tag:hover{background:var(--brand);color:#fff;}
+/* ACTIONS */
+.act-icons{display:flex;gap:6px;}
+.act-btn{background:none;border:1px solid var(--border);cursor:pointer;color:var(--muted);font-size:13px;padding:5px 8px;border-radius:7px;transition:all 0.15s;}
+.act-btn:hover{color:var(--brand);border-color:var(--brand);background:var(--brand-light);}
+.act-btn.del:hover{color:var(--red);border-color:var(--red);background:#fee2e2;}
+/* MODAL */
+.modal{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);align-items:center;justify-content:center;z-index:1000;}
+.modal.show{display:flex;}
+.modal-box{background:var(--surface);border-radius:14px;width:90%;max-width:500px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.2);}
+.modal-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;background:var(--surface);z-index:1;}
+.modal-hdr h2{font-size:15px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px;}
+.modal-hdr h2 i{color:var(--brand);}
+.close-btn{background:none;border:none;font-size:18px;cursor:pointer;color:var(--muted);width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:7px;}
+.close-btn:hover{background:#f1f5f9;color:var(--text);}
+.modal-body{padding:18px 20px;}
+.modal-ftr{padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:10px;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;margin-bottom:6px;font-size:11.5px;font-weight:600;color:var(--text);}
+.form-group input,.form-group select{width:100%;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'Sora',sans-serif;font-size:12.5px;color:var(--text);background:#fafbfc;outline:none;transition:border-color 0.15s;}
+.form-group input:focus,.form-group select:focus{border-color:var(--brand);background:#fff;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--surface);padding:11px 15px;border-radius:9px;box-shadow:0 4px 16px rgba(0,0,0,0.13);display:flex;align-items:center;gap:8px;font-size:12.5px;font-weight:500;animation:toastIn 0.3s;z-index:2000;border-left:3px solid var(--green);}
+.toast.error{border-left-color:var(--red);}
+.toast.warning{border-left-color:var(--yellow);}
+@keyframes toastIn{from{transform:translateX(110%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+.loading{text-align:center;padding:20px;color:var(--muted);}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-inner">
+      <div class="sb-ico"><i class="fas fa-chart-line"></i></div>
+      <div><div class="sb-title">Profit Recovery ERP</div><div class="sb-sub">Inventory Module</div></div>
+    </div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-sect">Inventory</div>
+    <a href="/inventory/dashboard" class="nav-link"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+    <a href="/inventory/products" class="nav-link active"><i class="fas fa-box"></i>Products</a>
+    <a href="/inventory/suppliers" class="nav-link"><i class="fas fa-truck"></i>Suppliers</a>
+  </div>
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-avatar" id="userAvatar">I</div>
+      <span class="sb-uname" id="userName">Inventory Manager</span>
+      <button class="sb-logout" onclick="logout()" title="Sign out"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+  </div>
+</div>
+
+<div class="main">
+  <div class="topbar">
+    <div class="page-title"><h1>Products</h1><p>Track stock levels & expiry dates</p></div>
+    <div class="topbar-right">
+      <div class="user-chip">
+        <div class="av" id="userAvatar2">I</div>
+        <span id="userNameTop">Inventory Manager</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- BULK CSV IMPORT -->
+  <div class="card">
+    <div class="card-head">
+      <div><h3><i class="fas fa-file-csv" style="color:var(--brand);margin-right:6px;"></i>Bulk Add via CSV</h3></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm" onclick="downloadSampleCSV()"><i class="fas fa-download"></i>Sample CSV</button>
+        <button class="btn btn-sm btn-primary" onclick="document.getElementById('fileInput').click()"><i class="fas fa-upload"></i>Import CSV</button>
+      </div>
+    </div>
+    <div class="csv-format">
+      <strong>Format:</strong> <code>Name, Expiry (YYYY-MM-DD), Quantity, Price, Cost, SupplierID, Barcode, MinStock</code><br>
+      • First row should be headers (will be skipped) &nbsp;·&nbsp; Expiry optional &nbsp;·&nbsp; Barcode auto-generated if empty
+    </div>
+    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+      <i class="fas fa-cloud-upload-alt"></i>
+      <p>Click to select CSV file or drag & drop</p>
+      <small>Supported format: .csv</small>
+      <input type="file" id="fileInput" accept=".csv" style="display:none;">
+    </div>
+    <div id="csvPreviewSection" style="display:none;">
+      <h4 style="font-size:13px;font-weight:600;margin:14px 0 8px;">Preview</h4>
+      <div class="csv-preview-wrap" id="csvPreview"></div>
+      <button class="btn btn-success" style="margin-top:12px;width:100%;justify-content:center;" onclick="processBulkCSV()"><i class="fas fa-check-circle"></i>Confirm & Process</button>
+    </div>
+  </div>
+
+  <!-- QUICK ADD SINGLE -->
+  <div class="card">
+    <div class="card-head">
+      <div>
+        <h3><i class="fas fa-plus-circle" style="color:var(--brand);margin-right:6px;"></i>Quick Add Single Product</h3>
+        <p style="font-size:11.5px;color:var(--muted);margin-top:3px;"><i class="fas fa-info-circle"></i> Same barcode + supplier + cost = quantity increase</p>
+      </div>
+    </div>
+    <div class="qa-grid">
+      <input type="text" id="quickName" class="qa-input" placeholder="Product name *">
+      <input type="date" id="quickExpiry" class="qa-input">
+      <input type="number" id="quickQty" class="qa-input" value="1" min="1" placeholder="Quantity">
+      <select id="quickSupplier" class="qa-select"><option value="">Select Supplier</option></select>
+    </div>
+    <div class="qa-grid">
+      <input type="text" id="quickBarcode" class="qa-input" placeholder="Barcode (auto-generated)">
+      <input type="number" id="quickPrice" class="qa-input" placeholder="Selling Price ₹" value="0" step="0.01">
+      <input type="number" id="quickCost" class="qa-input" placeholder="Cost Price ₹" value="0" step="0.01">
+      <input type="number" id="quickMinStock" class="qa-input" placeholder="Min Stock" value="10">
+    </div>
+    <div id="matchInfo" class="match-info"></div>
+    <button class="btn btn-primary" style="margin-top:12px;width:100%;justify-content:center;" onclick="quickAdd()"><i class="fas fa-plus"></i>Add Single Product</button>
+  </div>
+
+  <!-- FILTERS -->
+  <div class="filters">
+    <select id="expiryFilter" onchange="filterProducts()">
+      <option value="all">All Items</option>
+      <option value="expiring">Expiring Soon (≤7 days)</option>
+      <option value="expired">Expired</option>
+      <option value="good">Fresh (&gt;7 days)</option>
+    </select>
+    <select id="stockFilter" onchange="filterProducts()">
+      <option value="all">All Stock</option>
+      <option value="low">Low Stock</option>
+      <option value="normal">Normal Stock</option>
+      <option value="out">Out of Stock</option>
+    </select>
+    <select id="supplierFilter" onchange="filterProducts()"><option value="all">All Suppliers</option></select>
+    <input type="text" id="searchInput" placeholder="Search by name, barcode, supplier…" onkeyup="filterProducts()">
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-card">
+    <div class="table-top">
+      <h3><i class="fas fa-boxes" style="color:var(--brand);margin-right:7px;"></i>My Products (<span id="productCount">0</span>)</h3>
+      <button class="btn btn-sm" onclick="exportProducts()"><i class="fas fa-download"></i>Export CSV</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Product</th><th>Barcode</th><th>Expiry</th><th>Days Left</th>
+          <th>Stock</th><th>Price / Cost</th><th>Supplier</th><th>Min Stock</th>
+          <th>Status</th><th>Actions</th>
+        </thead>
+      <tbody id="productsTableBody">
+         <td colspan="10" class="loading"><i class="fas fa-spinner fa-spin"></i> Loading…</td>
+      </tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal" id="editModal">
+  <div class="modal-box">
+    <div class="modal-hdr">
+      <h2><i class="fas fa-edit"></i>Edit Product</h2>
+      <button class="close-btn" onclick="closeEditModal()"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="modal-body">
+      <input type="hidden" id="editProductId">
+      <div class="form-group"><label>Product Name *</label><input type="text" id="editName" required></div>
+      <div class="form-row">
+        <div class="form-group"><label>Barcode</label><input type="text" id="editBarcode" readonly></div>
+        <div class="form-group"><label>Product Code</label><input type="text" id="editCode" readonly></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Selling Price (₹) *</label><input type="number" id="editPrice" step="0.01" required></div>
+        <div class="form-group"><label>Cost Price (₹) *</label><input type="number" id="editCost" step="0.01" required></div>
+      </div>
+      <div class="form-row">
+        <div class="form-group"><label>Min Stock Level</label><input type="number" id="editMinStock" value="10"></div>
+        <div class="form-group"><label>Category</label><input type="text" id="editCategory"></div>
+      </div>
+      <div class="form-group"><label>Supplier</label><select id="editSupplier"><option value="">None</option></select></div>
+      <div class="form-group"><label style="display:flex;align-items:center;gap:8px;"><input type="checkbox" id="editPerishable"> Perishable Item</label></div>
+    </div>
+    <div class="modal-ftr">
+      <button class="btn" onclick="closeEditModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEdit()"><i class="fas fa-save"></i>Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let productManager;
+
+async function logout() {
+    try {
+        const response = await fetch('/api/logout', { method: 'POST' });
+        const data = await response.json();
+        window.location.href = data.redirect_url || '/login';
+    } catch (error) {
+        window.location.href = '/login';
+    }
+}
+
+class ProductManager {
+    constructor() {
+        this.products = [];
+        this.suppliers = [];
+        this.csvData = [];
+        this.hasHeaders = true;
+        this.init();
+    }
+    
+    async init() {
+        await this.checkAuth();
+        await this.loadSuppliers();
+        await this.loadProducts();
+        this.setupEvents();
+    }
+    
+    async checkAuth() {
+        try {
+            const r = await fetch('/api/check-auth', { credentials: 'include' });
+            const d = await r.json();
+            if (!d.authenticated) {
+                window.location.href = '/login';
+            } else {
+                const n = d.user.full_name || d.user.username;
+                document.getElementById("userName").textContent = n;
+                document.getElementById("userAvatar").textContent = n.charAt(0);
+                document.getElementById("userNameTop").textContent = n;
+                document.getElementById("userAvatar2").textContent = n.charAt(0);
+            }
+        } catch(e) {
+            window.location.href = '/login';
+        }
+    }
+    
+    setupEvents() {
+        document.getElementById("fileInput").addEventListener("change", (e) => this.handleFile(e));
+        
+        const drop = document.querySelector('.upload-area');
+        drop.addEventListener('dragover', (e) => { e.preventDefault(); drop.style.borderColor = 'var(--brand)'; drop.style.background = 'var(--brand-light)'; });
+        drop.addEventListener('dragleave', () => { drop.style.borderColor = 'var(--border)'; drop.style.background = '#fafbfc'; });
+        drop.addEventListener('drop', (e) => {
+            e.preventDefault();
+            drop.style.borderColor = 'var(--border)';
+            drop.style.background = '#fafbfc';
+            const f = e.dataTransfer.files[0];
+            if (f && f.name.endsWith('.csv')) {
+                this.readCSVFile(f);
+            } else {
+                this.showToast('Please drop a CSV file', 'error');
+            }
+        });
+        
+        document.getElementById('quickSupplier').addEventListener('change', () => this.checkForMatch());
+        document.getElementById('quickCost').addEventListener('input', () => this.checkForMatch());
+        document.getElementById('quickBarcode').addEventListener('input', () => this.checkForMatch());
+        document.getElementById('quickName').addEventListener('input', () => this.checkForMatch());
+        document.getElementById('quickPrice').addEventListener('input', () => this.checkForMatch());
+    }
+    
+    handleFile(e) {
+        const f = e.target.files[0];
+        if (!f) return;
+        this.readCSVFile(f);
+    }
+    
+    readCSVFile(f) {
+        const r = new FileReader();
+        r.onload = (ev) => this.parseCSV(ev.target.result);
+        r.readAsText(f);
+    }
+    
+    parseCSV(text) {
+        if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1);
+        const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+        if (lines.length === 0) {
+            this.showToast('Empty CSV file', 'error');
+            return;
+        }
+        
+        const fl = lines[0].toLowerCase();
+        this.hasHeaders = fl.includes('name') || fl.includes('expiry') || fl.includes('quantity') || fl.includes('price');
+        const si = this.hasHeaders ? 1 : 0;
+        this.csvData = [];
+        
+        for (let i = si; i < lines.length; i++) {
+            const p = lines[i].split(',').map(x => x.trim());
+            const row = {
+                name: p[0] || '',
+                expiry: p[1] || '',
+                quantity: p[2] || '1',
+                price: p[3] || '0',
+                cost: p[4] || '0',
+                supplierId: p[5] || '',
+                barcode: p[6] || '',
+                minStock: p[7] || '10'
+            };
+            if (row.name) this.csvData.push(row);
+        }
+        
+        this.showCSVPreview();
+        document.getElementById('csvPreviewSection').style.display = 'block';
+        this.showToast(`Loaded ${this.csvData.length} products from CSV`, 'success');
+    }
+    
+    showCSVPreview() {
+        const c = document.getElementById("csvPreview");
+        if (!this.csvData.length) {
+            c.innerHTML = '<p style="color:var(--muted)">No valid data found</p>';
+            return;
+        }
+        
+        let h = "<table class='csv-preview-table'><thead><tr><th>Name</th><th>Expiry</th><th>Qty</th><th>Price</th><th>Cost</th><th>Supplier</th><th>Barcode</th><th>MinStock</th></tr></thead><tbody>";
+        this.csvData.forEach(r => {
+            const sn = this.getSupplierName(r.supplierId);
+            h += `<tr><td>${r.name}</td><td>${r.expiry || '-'}</td><td>${r.quantity}</td><td>₹${r.price}</td><td>₹${r.cost}</td><td>${sn || 'Unknown'}</td><td>${r.barcode ? r.barcode.substring(0, 8) + '...' : 'auto'}</td><td>${r.minStock}</td></tr>`;
+        });
+        h += "</tbody></table>";
+        c.innerHTML = h;
+    }
+    
+    getSupplierName(id) {
+        if (!id) return '';
+        const s = this.suppliers.find(s => s.id == id);
+        return s ? s.supplier_name : '';
+    }
+    
+    async processBulkCSV() {
+        if (!this.csvData.length) {
+            this.showToast('No data to process', 'error');
+            return;
+        }
+        
+        const btn = document.querySelector('.btn-success');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
+        
+        let created = 0, updated = 0, failed = 0;
+        
+        for (const row of this.csvData) {
+            try {
+                if (!row.name) {
+                    failed++;
+                    continue;
+                }
+                
+                const productData = {
+                    product_name: row.name,
+                    expiry_date: row.expiry || null,
+                    quantity: parseInt(row.quantity) || 1,
+                    selling_price: parseFloat(row.price) || 0,
+                    cost_price: parseFloat(row.cost) || 0,
+                    min_stock_level: parseInt(row.minStock) || 10,
+                    is_perishable: true
+                };
+                
+                if (row.barcode && row.barcode !== '' && row.barcode !== 'auto') {
+                    productData.barcode = row.barcode;
+                }
+                
+                if (row.supplierId && row.supplierId.trim()) {
+                    if (!isNaN(row.supplierId) && row.supplierId !== '') {
+                        productData.supplier_id = parseInt(row.supplierId);
+                    } else {
+                        productData.supplier_name = row.supplierId;
+                    }
+                }
+                
+                const res = await fetch('/api/products/quick-add', {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    credentials: 'include',
+                    body: JSON.stringify(productData)
+                });
+                
+                const result = await res.json();
+                
+                if (res.ok && result.success) {
+                    if (result.existing_updated) updated++;
+                    else created++;
+                } else {
+                    failed++;
+                }
+            } catch (e) {
+                failed++;
+            }
+        }
+        
+        if (failed === 0) {
+            this.showToast(`✅ Created: ${created} | Updated: ${updated}`, 'success');
+            this.csvData = [];
+            document.getElementById('csvPreviewSection').style.display = 'none';
+            document.getElementById('fileInput').value = '';
+            document.getElementById('csvPreview').innerHTML = '';
+        } else {
+            this.showToast(`⚠️ Created: ${created} | Updated: ${updated} | Failed: ${failed}`, 'warning');
+        }
+        
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-check-circle"></i> Confirm & Process';
+        await this.loadProducts();
+    }
+    
+    async loadSuppliers() {
+        try {
+            const r = await fetch("/api/suppliers?active_only=true", { credentials: 'include' });
+            if (r.ok) {
+                this.suppliers = await r.json();
+                this.updateSupplierDropdowns();
+                console.log('Loaded suppliers:', this.suppliers);
+            }
+        } catch (e) {
+            console.error('Error loading suppliers:', e);
+        }
+    }
+    
+    updateSupplierDropdowns() {
+        const qs = document.getElementById("quickSupplier");
+        const fs = document.getElementById("supplierFilter");
+        const es = document.getElementById("editSupplier");
+        
+        let o = '<option value="">Select Supplier</option>';
+        let fo = '<option value="all">All Suppliers</option>';
+        let eo = '<option value="">None</option>';
+        
+        this.suppliers.forEach(s => {
+            const displayText = `${s.supplier_name}`;
+            o += `<option value="${s.id}">${displayText}</option>`;
+            fo += `<option value="${s.id}">${displayText}</option>`;
+            eo += `<option value="${s.id}">${displayText}</option>`;
+        });
+        
+        qs.innerHTML = o;
+        fs.innerHTML = fo;
+        if (es) es.innerHTML = eo;
+    }
+    
+    async checkForMatch() {
+        const name = document.getElementById('quickName').value.trim();
+        const supplierId = document.getElementById('quickSupplier').value;
+        const cost = parseFloat(document.getElementById('quickCost').value) || 0;
+        const price = parseFloat(document.getElementById('quickPrice').value) || 0;
+        const newMinStock = parseInt(document.getElementById('quickMinStock').value) || 10;
+        const newBarcode = document.getElementById('quickBarcode').value.trim();
+        const mi = document.getElementById('matchInfo');
+        
+        if (!name) {
+            mi.style.display = 'none';
+            return;
+        }
+        
+        try {
+            const r = await fetch(`/api/products?search=${encodeURIComponent(name)}`, { credentials: 'include' });
+            const data = await r.json();
+            
+            let match = null;
+            for (const p of data.items || []) {
+                const pr = await fetch(`/api/products/${p.id}`, { credentials: 'include' });
+                if (pr.ok) {
+                    const pd = await pr.json();
+                    const ps = pd.suppliers || [];
+                    const hasSupplier = supplierId && ps.some(s => s.id == supplierId);
+                    const costMatch = Math.abs((p.cost_price || 0) - cost) < 0.01;
+                    const priceMatch = Math.abs((p.selling_price || 0) - price) < 0.01;
+                    
+                    if (hasSupplier && costMatch && priceMatch) {
+                        match = p;
+                        break;
+                    }
+                }
+            }
+            
+            if (match) {
+                let msg = '';
+                if (newBarcode && match.barcode !== newBarcode) msg += `<br>• Barcode will be IGNORED — using: ${match.barcode}`;
+                if (match.min_stock_level !== newMinStock) msg += `<br>• Min stock UPDATED: ${match.min_stock_level} → ${newMinStock}`;
+                
+                mi.className = 'match-info match-exact';
+                mi.innerHTML = `<i class="fas fa-check-circle"></i> <strong>Existing product found!</strong><br>• Code: ${match.product_code} | Barcode: ${match.barcode}<br>• Quantity will be increased by ${document.getElementById('quickQty').value || 1}${msg}`;
+                mi.style.display = 'block';
+            } else {
+                mi.style.display = 'none';
+            }
+        } catch(e) {
+            mi.style.display = 'none';
+        }
+    }
+    
+    async quickAdd() {
+        const name = document.getElementById("quickName").value.trim();
+        const expiry = document.getElementById("quickExpiry").value;
+        const qty = parseInt(document.getElementById("quickQty").value) || 1;
+        const supplierInput = document.getElementById("quickSupplier").value;
+        const barcode = document.getElementById("quickBarcode").value.trim();
+        const price = parseFloat(document.getElementById("quickPrice").value) || 0;
+        const cost = parseFloat(document.getElementById("quickCost").value) || 0;
+        const minStock = parseInt(document.getElementById("quickMinStock").value) || 10;
+        
+        if (!name) {
+            this.showToast("Product name required", "error");
+            return;
+        }
+        
+        const productData = {
+            product_name: name,
+            expiry_date: expiry || null,
+            quantity: qty,
+            selling_price: price,
+            cost_price: cost > 0 ? cost : price * 0.7,
+            min_stock_level: minStock,
+            is_perishable: true
+        };
+        
+        if (barcode && barcode !== '') {
+            productData.barcode = barcode;
+        }
+        
+        if (supplierInput && supplierInput !== '') {
+            if (!isNaN(supplierInput) && supplierInput !== '') {
+                productData.supplier_id = parseInt(supplierInput);
+            } else {
+                productData.supplier_name = supplierInput;
+            }
+        }
+        
+        const addBtn = document.querySelectorAll('.btn-primary')[document.querySelectorAll('.btn-primary').length - 1];
+        addBtn.disabled = true;
+        addBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Adding…';
+        
+        try {
+            const r = await fetch("/api/products/quick-add", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: 'include',
+                body: JSON.stringify(productData)
+            });
+            
+            const res = await r.json();
+            
+            if (r.ok && res.success) {
+                if (res.existing_updated) {
+                    this.showToast(`✅ Added ${qty} to existing "${name}"`, 'success');
+                } else {
+                    this.showToast(`✅ Added new product "${name}"`, 'success');
+                }
+                
+                document.getElementById("quickName").value = '';
+                document.getElementById("quickExpiry").value = '';
+                document.getElementById("quickQty").value = '1';
+                document.getElementById("quickBarcode").value = '';
+                document.getElementById("quickPrice").value = '0';
+                document.getElementById("quickCost").value = '0';
+                document.getElementById("quickMinStock").value = '10';
+                document.getElementById("quickSupplier").value = '';
+                document.getElementById('matchInfo').style.display = 'none';
+                
+                await this.loadProducts();
+            } else {
+                this.showToast(res.error || 'Failed to add', 'error');
+            }
+        } catch (e) {
+            this.showToast('Network error', 'error');
+        } finally {
+            addBtn.disabled = false;
+            addBtn.innerHTML = '<i class="fas fa-plus"></i> Add Single Product';
+        }
+    }
+    
+    async loadProducts() {
+        const tbody = document.getElementById("productsTableBody");
+        try {
+            const r = await fetch("/api/products", { credentials: 'include' });
+            const data = await r.json();
+            this.products = data.items || [];
+            
+            // Fetch supplier info for each product
+            for (let p of this.products) {
+                try {
+                    const pr = await fetch(`/api/products/${p.id}`, { credentials: 'include' });
+                    if (pr.ok) {
+                        const pd = await pr.json();
+                        p.suppliers = pd.suppliers || [];
+                        p.supplier_names = pd.suppliers.map(s => s.name).join(', ') || 'None';
+                    }
+                    
+                    const br = await fetch(`/api/batches?product_id=${p.id}`, { credentials: 'include' });
+                    if (br.ok) {
+                        const batches = await br.json();
+                        p.batches = batches;
+                        p.totalStock = batches.reduce((s, b) => s + b.remaining_quantity, 0);
+                        
+                        const validBatches = batches.filter(b => b.expiry_date);
+                        if (validBatches.length > 0) {
+                            validBatches.sort((a, b) => new Date(a.expiry_date) - new Date(b.expiry_date));
+                            p.earliestExpiry = validBatches[0].expiry_date;
+                            const days = Math.ceil((new Date(p.earliestExpiry) - new Date()) / (1000 * 60 * 60 * 24));
+                            p.daysLeft = days;
+                        } else {
+                            p.totalStock = 0;
+                        }
+                    }
+                } catch(e) {
+                    console.error('Error fetching product details:', e);
+                }
+            }
+            
+            document.getElementById("productCount").textContent = this.products.length;
+            this.renderTable();
+        } catch(e) {
+            tbody.innerHTML = '<tr><td colspan="10" style="color:var(--red);text-align:center;">Failed to load products</td></tr>';
+        }
+    }
+    
+    renderTable() {
+        const tbody = document.getElementById("productsTableBody");
+        if (!this.products.length) {
+            tbody.innerHTML = '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:30px;">No products found</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = this.products.map(p => {
+            const d = p.daysLeft;
+            let ec = 'badge-success', dot = 'dot-green';
+            if (d < 0) { ec = 'badge-danger'; dot = 'dot-red'; }
+            else if (d <= 7) { ec = 'badge-warning'; dot = 'dot-yellow'; }
+            
+            const supplierNames = p.supplier_names || 'None';
+            
+            let stockStatus = '';
+            if (p.totalStock === 0) stockStatus = 'Out of Stock';
+            else if (p.totalStock <= p.min_stock_level) stockStatus = `Low (${p.totalStock}/${p.min_stock_level})`;
+            else stockStatus = p.totalStock;
+            
+            return `
+                <tr>
+                    <td><div class="prod-name">${p.product_name}</div><div class="prod-sku">${p.product_code}</div></td>
+                    <td><span class="prod-sku">${p.barcode ? p.barcode.slice(0, 10) + '…' : '-'}</span></td>
+                    <td><div class="exp-wrap"><span class="exp-dot ${dot}"></span>${p.earliestExpiry ? new Date(p.earliestExpiry).toLocaleDateString('en-IN') : '-'}</div></td>
+                    <td><span class="badge ${ec}">${d != null ? d + ' d' : '-'}</span></td>
+                    <td><span class="badge ${p.totalStock === 0 ? 'badge-danger' : (p.totalStock <= p.min_stock_level ? 'badge-warning' : 'badge-success')}">${stockStatus}</span></td>
+                    <td style="font-size:12px;">₹${p.selling_price} <span style="color:var(--muted)">/ ₹${p.cost_price || 0}</span></td>
+                    <td><span class="sup-tag">${supplierNames}</span></td>
+                    <td style="font-size:12px;">${p.min_stock_level || 10}</td>
+                    <td>${p.totalStock <= p.min_stock_level ? '<span class="badge badge-warning">⚠ Low</span>' : '<span class="badge badge-success">✓ OK</span>'}</td>
+                    <td><div class="act-icons">
+                        <button class="act-btn" onclick="editProduct(${p.id})" title="Edit"><i class="fas fa-edit"></i></button>
+                        <button class="act-btn del" onclick="deleteProduct(${p.id}, '${p.product_name}')" title="Delete"><i class="fas fa-trash"></i></button>
+                    </div></td>
+                </tr>
+            `;
+        }).join('');
+    }
+    
+    async deleteProduct(id, name) {
+        if (!confirm(`⚠️ Are you sure you want to delete "${name}"?\n\nThis will also delete all batches and supplier links for this product.`)) {
+            return;
+        }
+        
+        try {
+            const r = await fetch(`/api/products/${id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include'
+            });
+            
+            const result = await r.json();
+            
+            if (r.ok) {
+                this.showToast(result.message || 'Product deleted successfully', 'success');
+                await this.loadProducts();
+            } else {
+                this.showToast(result.error || 'Failed to delete product', 'error');
+            }
+        } catch (e) {
+            this.showToast('Network error', 'error');
+        }
+    }
+    
+    filterProducts() {
+        const ef = document.getElementById('expiryFilter').value;
+        const sf = document.getElementById('stockFilter').value;
+        const supf = document.getElementById('supplierFilter').value;
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        
+        let filtered = [...this.products];
+        
+        if (ef !== 'all') {
+            filtered = filtered.filter(p => {
+                if (!p.daysLeft) return ef === 'good';
+                if (ef === 'expiring') return p.daysLeft > 0 && p.daysLeft <= 7;
+                if (ef === 'expired') return p.daysLeft < 0;
+                return p.daysLeft > 7;
+            });
+        }
+        
+        if (sf !== 'all') {
+            filtered = filtered.filter(p => {
+                if (sf === 'low') return p.totalStock <= p.min_stock_level && p.totalStock > 0;
+                if (sf === 'normal') return p.totalStock > p.min_stock_level;
+                if (sf === 'out') return p.totalStock === 0;
+                return true;
+            });
+        }
+        
+        if (supf !== 'all') {
+            filtered = filtered.filter(p => p.suppliers?.some(s => s.id == supf));
+        }
+        
+        if (q) {
+            filtered = filtered.filter(p => 
+                p.product_name?.toLowerCase().includes(q) ||
+                (p.barcode && p.barcode.toLowerCase().includes(q)) ||
+                p.supplier_names?.toLowerCase().includes(q)
+            );
+        }
+        
+        this.products = filtered;
+        this.renderTable();
+    }
+    
+    exportProducts() {
+        const csv = [['Name','Barcode','Expiry','Stock','Price','Cost','SupplierID','MinStock'],
+            ...this.products.map(p => [
+                p.product_name,
+                p.barcode || '',
+                p.earliestExpiry || '',
+                p.totalStock || 0,
+                p.selling_price,
+                p.cost_price || 0,
+                p.suppliers && p.suppliers.length > 0 ? p.suppliers[0].id : '',
+                p.min_stock_level || 10
+            ])
+        ].map(r => r.join(',')).join('\n');
+        
+        const b = new Blob([csv], { type: "text/csv" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = `products_${new Date().toISOString().slice(0, 10)}.csv`;
+        a.click();
+    }
+    
+    downloadSampleCSV() {
+        const s = `Name,Expiry,Quantity,Price,Cost,SupplierID,Barcode,MinStock\nMilk,2024-12-31,50,40,35,1,8901234567890,20\nBread,2024-12-25,30,35,25,2,,15`;
+        const b = new Blob([s], { type: "text/csv" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(b);
+        a.download = "sample_products.csv";
+        a.click();
+    }
+    
+    async editProduct(id) {
+        try {
+            const r = await fetch(`/api/products/${id}`, { credentials: 'include' });
+            if (!r.ok) {
+                this.showToast('Failed to load product', 'error');
+                return;
+            }
+            
+            const p = await r.json();
+            document.getElementById("editProductId").value = p.id;
+            document.getElementById("editName").value = p.product_name;
+            document.getElementById("editBarcode").value = p.barcode || '';
+            document.getElementById("editCode").value = p.product_code || '';
+            document.getElementById("editPrice").value = p.selling_price;
+            document.getElementById("editCost").value = p.cost_price || 0;
+            document.getElementById("editMinStock").value = p.min_stock_level || 10;
+            document.getElementById("editCategory").value = p.category || '';
+            document.getElementById("editPerishable").checked = p.is_perishable || false;
+            
+            if (p.suppliers && p.suppliers.length > 0) {
+                document.getElementById("editSupplier").value = p.suppliers[0].id;
+            } else {
+                document.getElementById("editSupplier").value = '';
+            }
+            
+            document.getElementById("editModal").classList.add('show');
+        } catch(e) {
+            this.showToast('Error loading product', 'error');
+        }
+    }
+    
+    async saveEdit() {
+        const id = document.getElementById("editProductId").value;
+        const data = {
+            product_name: document.getElementById("editName").value,
+            selling_price: parseFloat(document.getElementById("editPrice").value) || 0,
+            cost_price: parseFloat(document.getElementById("editCost").value) || 0,
+            min_stock_level: parseInt(document.getElementById("editMinStock").value) || 10,
+            category: document.getElementById("editCategory").value,
+            is_perishable: document.getElementById("editPerishable").checked,
+            suppliers: document.getElementById("editSupplier").value ? [{ id: parseInt(document.getElementById("editSupplier").value), is_preferred: false }] : []
+        };
+        
+        try {
+            const r = await fetch(`/api/products/${id}`, {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            });
+            
+            if (r.ok) {
+                this.showToast("Product updated", 'success');
+                this.closeEditModal();
+                await this.loadProducts();
+            } else {
+                this.showToast("Update failed", 'error');
+            }
+        } catch(e) {
+            this.showToast("Network error", 'error');
+        }
+    }
+    
+    closeEditModal() {
+        document.getElementById("editModal").classList.remove('show');
+    }
+    
+    goToSupplier(id) {
+        window.location.href = `/inventory/suppliers?id=${id}`;
+    }
+    
+    showToast(msg, type = 'success') {
+        const t = document.createElement("div");
+        t.className = `toast ${type}`;
+        t.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'exclamation-triangle'}"></i> ${msg}`;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 4000);
+    }
+}
+
+// Initialize
+productManager = new ProductManager();
+
+// Global functions for onclick handlers
+window.quickAdd = () => productManager.quickAdd();
+window.processBulkCSV = () => productManager.processBulkCSV();
+window.filterProducts = () => productManager.filterProducts();
+window.deleteProduct = (id, name) => productManager.deleteProduct(id, name);
+window.exportProducts = () => productManager.exportProducts();
+window.editProduct = (id) => productManager.editProduct(id);
+window.saveEdit = () => productManager.saveEdit();
+window.closeEditModal = () => productManager.closeEditModal();
+window.goToSupplier = (id) => productManager.goToSupplier(id);
+window.downloadSampleCSV = () => productManager.downloadSampleCSV();
+window.logout = logout;
+</script>
+</body>
+</html>

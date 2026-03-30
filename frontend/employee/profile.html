@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile - Profit Recovery ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --gray: #64748b;
+            --light-gray: #f1f5f9;
+            --border: #e2e8f0;
+            --white: #ffffff;
+            --dark-sidebar: #0c1a19;
+            --dark-sidebar-hover: #122e2b;
+            --dark-sidebar-active: #163d39;
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--light-gray); }
+        
+        .sidebar {
+            width: 280px;
+            background: var(--dark-sidebar);
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+        .sidebar-brand { padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-brand h2 { color: white; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; }
+        .sidebar-brand h2 i { color: var(--primary); }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 0.25rem; padding: 1rem; }
+        .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; }
+        .nav-item:hover { background: var(--dark-sidebar-hover); color: white; }
+        .nav-item.active { background: var(--dark-sidebar-active); color: white; border-left: 3px solid var(--primary); }
+        .sidebar-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); }
+        .user-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+        .user-avatar { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; }
+        .user-name { font-weight: 600; color: white; }
+        .user-role { font-size: 0.7rem; opacity: 0.6; color: white; }
+        .logout-btn { width: 100%; padding: 0.75rem; background: rgba(239,68,68,0.2); border: none; border-radius: 8px; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        
+        .main-content { margin-left: 280px; padding: 2rem; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        .page-title h1 { font-size: 1.75rem; font-weight: 700; }
+        .date-badge { background: var(--white); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; border: 1px solid var(--border); }
+        
+        /* Announcement Banner */
+        .announcement-banner {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid var(--warning);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1.5rem;
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            animation: slideDown 0.3s ease;
+        }
+        .announcement-banner.show { display: flex; }
+        .announcement-banner i { font-size: 1.5rem; color: #d97706; }
+        .announcement-content { flex: 1; }
+        .announcement-title { font-weight: 600; color: #92400e; margin-bottom: 0.25rem; }
+        .announcement-message { color: #78350f; font-size: 0.9rem; }
+        .announcement-close { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #92400e; }
+        
+        .profile-container {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border);
+        }
+        .profile-header {
+            display: flex;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 600;
+            color: white;
+        }
+        .profile-info h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .profile-info p { color: var(--gray); margin-bottom: 0.25rem; }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+        }
+        .info-card {
+            background: var(--light-gray);
+            border-radius: 12px;
+            padding: 1rem;
+        }
+        .info-card h4 { font-size: 0.7rem; color: var(--gray); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .info-card p { font-size: 1rem; font-weight: 500; }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .main-content { margin-left: 0; }
+            .info-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .profile-header { flex-direction: column; align-items: center; text-align: center; }
+            .main-content { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand"><h2><i class="fas fa-chart-line"></i> Profit Recovery ERP</h2></div>
+        <div class="sidebar-nav">
+            <a href="/employee/profile" class="nav-item active"><i class="fas fa-user-circle"></i><span>My Profile</span></a>
+            <a href="/employee/attendance" class="nav-item"><i class="fas fa-calendar-check"></i><span>My Attendance</span></a>
+            <a href="/employee/leaves" class="nav-item"><i class="fas fa-umbrella-beach"></i><span>My Leaves</span></a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div><div class="user-name" id="userName">Employee</div><div class="user-role" id="userRole">Employee</div></div>
+            </div>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title"><h1>My Profile</h1><p>View your personal and employment information</p></div>
+            <div class="date-badge" id="currentDate"></div>
+        </div>
+
+        <!-- Announcement Banner - MOVED HERE FROM LEAVES PAGE -->
+        <div class="announcement-banner" id="announcementBanner">
+            <i class="fas fa-bullhorn"></i>
+            <div class="announcement-content">
+                <div class="announcement-title">HR Announcement</div>
+                <div class="announcement-message" id="announcementMessage"></div>
+            </div>
+            <button class="announcement-close" onclick="closeAnnouncement()"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="profile-container">
+            <div class="profile-header">
+                <div class="profile-avatar" id="profileAvatar">A</div>
+                <div class="profile-info">
+                    <h2 id="fullName">Loading...</h2>
+                    <p><i class="fas fa-envelope"></i> <span id="email">-</span></p>
+                    <p><i class="fas fa-phone"></i> <span id="phone">-</span></p>
+                    <p><i class="fas fa-briefcase"></i> <span id="position">-</span> | <span id="department">-</span></p>
+                    <p><i class="fas fa-calendar-alt"></i> Joined: <span id="hireDate">-</span></p>
+                </div>
+            </div>
+            <div class="info-grid">
+                <div class="info-card"><h4>Employee Code</h4><p id="empCode">-</p></div>
+                <div class="info-card"><h4>Employment Type</h4><p id="empType">-</p></div>
+                <div class="info-card"><h4>Date of Birth</h4><p id="dob">-</p></div>
+                <div class="info-card"><h4>Gender</h4><p id="gender">-</p></div>
+                <div class="info-card"><h4>Marital Status</h4><p id="maritalStatus">-</p></div>
+                <div class="info-card"><h4>Nationality</h4><p id="nationality">-</p></div>
+                <div class="info-card"><h4>Address</h4><p id="address">-</p></div>
+                <div class="info-card"><h4>Emergency Contact</h4><p id="emergency">-</p></div>
+                <div class="info-card"><h4>Bank Name</h4><p id="bankName">-</p></div>
+                <div class="info-card"><h4>Bank Account</h4><p id="bankAccount">-</p></div>
+                <div class="info-card"><h4>IFSC Code</h4><p id="ifscCode">-</p></div>
+                <div class="info-card"><h4>PAN Number</h4><p id="panNumber">-</p></div>
+                <div class="info-card"><h4>UAN Number</h4><p id="uanNumber">-</p></div>
+                <div class="info-card"><h4>ESI Number</h4><p id="esiNumber">-</p></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function checkAuth() {
+            const response = await fetch('/api/check-auth');
+            const data = await response.json();
+            if (!data.authenticated) window.location.href = '/login';
+            document.getElementById('userName').textContent = data.user.full_name;
+            document.getElementById('userAvatar').textContent = data.user.full_name.charAt(0);
+            document.getElementById('profileAvatar').textContent = data.user.full_name.charAt(0);
+            document.getElementById('userRole').textContent = data.user.role.replace('_', ' ').toUpperCase();
+        }
+
+        async function loadProfile() {
+            try {
+                const response = await fetch('/api/employee/profile');
+                const emp = await response.json();
+                
+                document.getElementById('fullName').textContent = emp.full_name;
+                document.getElementById('email').textContent = emp.email;
+                document.getElementById('phone').textContent = emp.personal_phone || emp.phone || '-';
+                document.getElementById('position').textContent = emp.position || emp.job_title || '-';
+                document.getElementById('department').textContent = emp.department_name || '-';
+                document.getElementById('hireDate').textContent = emp.hire_date || '-';
+                document.getElementById('empCode').textContent = emp.employee_code;
+                document.getElementById('empType').textContent = emp.employment_type ? emp.employment_type.toUpperCase() : 'Permanent';
+                document.getElementById('dob').textContent = emp.date_of_birth || '-';
+                document.getElementById('gender').textContent = emp.gender ? emp.gender.toUpperCase() : '-';
+                document.getElementById('maritalStatus').textContent = emp.marital_status ? emp.marital_status.toUpperCase() : '-';
+                document.getElementById('nationality').textContent = emp.nationality || 'Indian';
+                
+                const address = [emp.address_line1, emp.city, emp.state, emp.pincode].filter(a => a).join(', ');
+                document.getElementById('address').textContent = address || '-';
+                
+                const emergency = [emp.emergency_contact_name, emp.emergency_contact_phone, emp.emergency_contact_relation].filter(e => e).join(' - ');
+                document.getElementById('emergency').textContent = emergency || '-';
+                
+                document.getElementById('bankName').textContent = emp.bank_name || '-';
+                document.getElementById('bankAccount').textContent = emp.bank_account || '-';
+                document.getElementById('ifscCode').textContent = emp.ifsc_code || '-';
+                document.getElementById('panNumber').textContent = emp.pan_number || '-';
+                document.getElementById('uanNumber').textContent = emp.uan_number || '-';
+                document.getElementById('esiNumber').textContent = emp.esi_number || '-';
+                
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                document.getElementById('fullName').textContent = 'Error loading profile';
+            }
+        }
+
+        async function loadAnnouncement() {
+            try {
+                const response = await fetch('/api/hr/announcements/latest');
+                const data = await response.json();
+                
+                if (data.message && !localStorage.getItem('announcement_seen_' + data.id)) {
+                    document.getElementById('announcementMessage').textContent = data.message;
+                    document.getElementById('announcementBanner').classList.add('show');
+                }
+            } catch (error) {
+                console.error('Error loading announcement:', error);
+            }
+        }
+
+        function closeAnnouncement() {
+            document.getElementById('announcementBanner').classList.remove('show');
+            localStorage.setItem('announcement_seen_' + Date.now(), 'true');
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/login';
+        }
+
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        checkAuth();
+        loadProfile();
+        loadAnnouncement();
+        
+        // Refresh announcement every 30 seconds
+        setInterval(() => {
+            loadAnnouncement();
+        }, 30000);
+    </script>
+</body>
+</html>

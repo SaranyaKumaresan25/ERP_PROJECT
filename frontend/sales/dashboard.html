@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Billing System with Camera Scanner</title>
+    <style>
+        /* Keep ALL your existing CSS - it's fine */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            background: #f0f2f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .user-info {
+            background: #4CAF50;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+
+        .scanner-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .scanner-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #555;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .scanner-status {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .scanner-status.active {
+            background: #dcfce7;
+            color: #059669;
+        }
+
+        .camera-container {
+            background: #1a1a1a;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 15px;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #preview {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .placeholder-content {
+            color: #666;
+        }
+
+        .camera-icon {
+            font-size: 48px;
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+
+        .placeholder-content p {
+            color: #999;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .scanning-overlay {
+            position: relative;
+            width: 100%;
+            height: 4px;
+            background: #4CAF50;
+            animation: scan 2s infinite;
+            margin-top: 10px;
+            display: none;
+        }
+
+        @keyframes scan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            margin: 15px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #45a049;
+        }
+
+        .btn-danger {
+            background: #dc2626;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+        }
+
+        .btn-test {
+            background: #9c27b0;
+            color: white;
+        }
+
+        .btn-test:hover {
+            background: #7b1fa2;
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid #ddd;
+            color: #333;
+        }
+
+        .btn-outline:hover {
+            background: #f5f5f5;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .input-group input {
+            flex: 1;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .test-panel {
+            background: #f3e5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        .test-panel h3 {
+            font-size: 14px;
+            color: #7b1fa2;
+            margin-bottom: 10px;
+        }
+
+        .test-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .test-btn {
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #9c27b0;
+            color: #9c27b0;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .test-btn:hover {
+            background: #9c27b0;
+            color: white;
+        }
+
+        .bill-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .bill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .bill-header h2 {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .item-count {
+            background: #4CAF50;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px;
+            background: #f5f5f5;
+            color: #666;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .product-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .product-code {
+            font-size: 11px;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .qty-control {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qty-btn {
+            width: 30px;
+            height: 30px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .qty-btn:hover {
+            background: #e0e0e0;
+        }
+
+        .qty-input {
+            width: 50px;
+            text-align: center;
+            padding: 6px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        .price {
+            font-weight: 600;
+            color: #4CAF50;
+        }
+
+        .remove-btn {
+            color: #999;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .remove-btn:hover {
+            color: #f44336;
+        }
+
+        .total-section {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            text-align: right;
+        }
+
+        .total-row {
+            font-size: 20px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .total-row span {
+            color: #4CAF50;
+            font-size: 24px;
+            margin-left: 15px;
+        }
+
+        .payment-btn {
+            margin-top: 15px;
+            padding: 15px 30px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .payment-btn:hover {
+            background: #45a049;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.3s;
+            z-index: 1000;
+            font-size: 14px;
+        }
+
+        .toast.success { border-left: 4px solid #4CAF50; }
+        .toast.error { border-left: 4px solid #f44336; }
+        .toast.warning { border-left: 4px solid #ff9800; }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0%); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📷 Billing System with Camera Scanner</h1>
+            <div class="user-info" id="userInfo">Cashier: <span id="cashierName">Loading...</span></div>
+        </div>
+
+        <div class="scanner-section">
+            <div class="scanner-title">
+                <span>📷 Scan Product Barcode</span>
+                <span class="scanner-status" id="scannerStatus">● Camera Off</span>
+            </div>
+
+            <div class="camera-container" id="cameraContainer">
+                <video id="preview" autoplay playsinline></video>
+                <div class="placeholder-content" id="placeholder">
+                    <div class="camera-icon">📷</div>
+                    <p>Camera is off</p>
+                    <button class="btn btn-primary" id="startCameraBtn">Start Camera</button>
+                </div>
+                <div class="scanning-overlay" id="scanningOverlay"></div>
+            </div>
+
+            <div class="btn-group">
+                <button class="btn btn-outline" id="stopCameraBtn" style="display: none;" onclick="stopCamera()">Stop Camera</button>
+                <button class="btn btn-test" onclick="toggleTestPanel()">🧪 Test Mode</button>
+                <button class="btn btn-outline" onclick="clearBill()">Clear Bill</button>
+            </div>
+
+            <div class="input-group">
+                <input type="text" id="manualBarcode" placeholder="Or enter barcode manually...">
+                <button class="btn btn-primary" onclick="addManualProduct()">Add Product</button>
+            </div>
+
+            <div class="test-panel" id="testPanel" style="display: none;">
+                <h3>🧪 Test Products (Click to add to bill)</h3>
+                <div class="test-buttons">
+                    <button class="test-btn" onclick="addTestProduct('8901234567890', 'Fresh Milk', 50)">🥛 Milk - ₹50</button>
+                    <button class="test-btn" onclick="addTestProduct('8901234567891', 'Bread', 35)">🍞 Bread - ₹35</button>
+                    <button class="test-btn" onclick="addTestProduct('8901234567892', 'Biscuit', 20)">🍪 Biscuit - ₹20</button>
+                    <button class="test-btn" onclick="addTestProduct('8901234567893', 'Juice', 80)">🧃 Juice - ₹80</button>
+                    <button class="test-btn" onclick="addTestProduct('8901234567894', 'Yogurt', 60)">🥛 Yogurt - ₹60</button>
+                    <button class="test-btn" onclick="addTestProduct('8901234567895', 'Coffee', 120)">☕ Coffee - ₹120</button>
+                    <button class="test-btn" onclick="addTestProduct('8901234567896', 'Tea', 40)">🍵 Tea - ₹40</button>
+                    <button class="test-btn" onclick="addRandomProduct()">🎲 Random</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bill-section">
+            <div class="bill-header">
+                <h2>🧾 Current Bill</h2>
+                <span class="item-count" id="itemCount">0 items</span>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Price (₹)</th>
+                        <th>Quantity</th>
+                        <th>Total (₹)</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="billTableBody">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 40px; color: #999;">
+                            No items in bill. Scan or add a product to start.
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="total-section">
+                <div class="total-row">
+                    TOTAL AMOUNT: <span id="totalAmount">₹0</span>
+                </div>
+                <button class="payment-btn" onclick="processPayment()">
+                    💰 PROCESS PAYMENT & DEDUCT STOCK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+
+    <script>
+        class BillingSystem {
+            constructor() {
+                this.billItems = [];
+                this.isScanning = false;
+                this.currentUser = null;
+                this.testMode = false;
+                this.basePath = '/ERP_PROJECT/frontend/sales'; // ← MUST match your folder name
+                
+                this.init();
+            }
+
+            async init() {
+                await this.checkAuth();
+                this.setupCameraEvents();
+                this.updateBillTable();
+            }
+
+            
+
+            async checkAuth() {
+                try {
+                    const response = await fetch(`${this.basePath}/api/check_auth.php`);
+                    const data = await response.json();
+                    
+                    if (data.authenticated) {
+                        document.getElementById('cashierName').textContent = data.user.full_name || data.user.username;
+                    } else {
+                        document.getElementById('cashierName').textContent = 'Guest';
+                    }
+                } catch (error) {
+                    console.log('Auth check failed - using test mode');
+                    document.getElementById('cashierName').textContent = 'Test Cashier';
+                }
+            }
+
+            generateInvoice(invoiceNumber, total) {
+    const items = this.billItems.map(item => ({
+        name: item.name,
+        quantity: item.quantity,
+        unit_price: item.price,
+        total_price: item.total
+    }));
+
+    fetch(`${this.basePath}/api/invoice.php`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            invoice_number: invoiceNumber,
+            items: items,
+            grand_total: total
+        })
+    })
+    .then(res => res.blob())
+    .then(blob => {
+        const url = window.URL.createObjectURL(blob);
+        window.open(url);
+    })
+    .catch(err => console.error("Invoice error:", err));
+}
+
+            setupCameraEvents() {
+                document.getElementById('startCameraBtn').addEventListener('click', () => this.startCamera());
+            }
+
+            startCamera() {
+                Quagga.init({
+                    inputStream: {
+                        name: "Live",
+                        type: "LiveStream",
+                        target: document.querySelector('#preview'),
+                        constraints: {
+                            width: 640,
+                            height: 480,
+                            facingMode: "environment"
+                        }
+                    },
+                    decoder: {
+                        readers: [
+                            "ean_reader",
+                            "code_128_reader",
+                            "code_39_reader",
+                            "upc_reader",
+                            "upc_e_reader"
+                        ]
+                    }
+                }, (err) => {
+                    if (err) {
+                        this.showToast('Camera error: ' + err, 'error');
+                        return;
+                    }
+                    
+                    Quagga.start();
+                    this.isScanning = true;
+                    
+                    document.getElementById('preview').style.display = 'block';
+                    document.getElementById('placeholder').style.display = 'none';
+                    document.getElementById('startCameraBtn').style.display = 'none';
+                    document.getElementById('stopCameraBtn').style.display = 'inline-block';
+                    document.getElementById('scannerStatus').textContent = '● Scanning';
+                    document.getElementById('scannerStatus').classList.add('active');
+                    document.getElementById('scanningOverlay').style.display = 'block';
+                    
+                    this.showToast('Camera started - Show barcode', 'success');
+                });
+
+                Quagga.onDetected((data) => {
+                    const barcode = data.codeResult.code;
+                    this.showToast(`Scanned: ${barcode}`, 'success');
+                    this.processScannedBarcode(barcode);
+                    
+                    if (navigator.vibrate) navigator.vibrate(100);
+                });
+            }
+
+            stopCamera() {
+                if (Quagga) {
+                    Quagga.stop();
+                }
+                this.isScanning = false;
+                
+                document.getElementById('preview').style.display = 'none';
+                document.getElementById('placeholder').style.display = 'block';
+                document.getElementById('startCameraBtn').style.display = 'inline-block';
+                document.getElementById('stopCameraBtn').style.display = 'none';
+                document.getElementById('scannerStatus').textContent = '● Camera Off';
+                document.getElementById('scannerStatus').classList.remove('active');
+                document.getElementById('scanningOverlay').style.display = 'none';
+            }
+
+            async processScannedBarcode(barcode) {
+                try {
+                    // Get product from database
+                    const response = await fetch(`${this.basePath}/api/products/barcode/barcode.php?code=${barcode}`);
+                    
+                    if (response.ok) {
+                        const product = await response.json();
+                        
+                        // Get real batches from database
+                        const batchesResponse = await fetch(`${this.basePath}/api/batches/available/product_id.php?id=${product.id}`);
+                        
+                        if (batchesResponse.ok) {
+                            const batches = await batchesResponse.json();
+                            const totalStock = batches.reduce((sum, b) => sum + (b.remaining_quantity || 0), 0);
+                            
+                            this.addProductToBill({
+                                id: product.id,
+                                code: product.barcode,
+                                name: product.product_name,
+                                price: parseFloat(product.selling_price),
+                                stock: totalStock,
+                                batches: batches  // ← Use REAL batches from database
+                            });
+                        } else {
+                            this.showToast('No stock information available', 'warning');
+                        }
+                    } else {
+                        this.showToast('Product not found in database', 'error');
+                    }
+                } catch (error) {
+                    console.error('Error:', error);
+                    this.showToast('Error fetching product', 'error');
+                }
+            }
+
+            addProductToBill(product) {
+                const existingItem = this.billItems.find(item => item.code === product.code);
+                
+                if (existingItem) {
+                    if (existingItem.quantity + 1 > product.stock) {
+                        this.showToast(`Only ${product.stock} available in stock!`, 'error');
+                        return;
+                    }
+                    
+                    existingItem.quantity += 1;
+                    existingItem.total = existingItem.price * existingItem.quantity;
+                    this.showToast(`Added another ${product.name} (now ${existingItem.quantity})`, 'success');
+                } else {
+                    if (1 > product.stock) {
+                        this.showToast(`Product out of stock!`, 'error');
+                        return;
+                    }
+                    
+                    this.billItems.push({
+                        id: product.id,
+                        code: product.code,
+                        name: product.name,
+                        price: product.price,
+                        quantity: 1,
+                        total: product.price,
+                        stock: product.stock,
+                        batches: product.batches || []  // ← Store REAL batches
+                    });
+                    this.showToast(`Added ${product.name} - ₹${product.price}`, 'success');
+                }
+                
+                this.updateBillTable();
+            }
+
+            updateQuantity(index, newQuantity) {
+                if (newQuantity < 1) {
+                    this.removeItem(index);
+                    return;
+                }
+                
+                const item = this.billItems[index];
+                
+                if (newQuantity > item.stock) {
+                    this.showToast(`Only ${item.stock} available!`, 'error');
+                    return;
+                }
+                
+                item.quantity = newQuantity;
+                item.total = item.price * newQuantity;
+                
+                this.updateBillTable();
+            }
+
+            removeItem(index) {
+                const item = this.billItems[index];
+                this.billItems.splice(index, 1);
+                this.updateBillTable();
+                this.showToast(`Removed ${item.name} from bill`, 'success');
+            }
+
+            updateBillTable() {
+                const tbody = document.getElementById('billTableBody');
+                const itemCount = document.getElementById('itemCount');
+                const totalAmount = document.getElementById('totalAmount');
+                
+                if (this.billItems.length === 0) {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 40px; color: #999;">
+                                No items in bill. Scan or add a product to start.
+                            </td>
+                        </tr>
+                    `;
+                    itemCount.textContent = '0 items';
+                    totalAmount.textContent = '₹0';
+                    return;
+                }
+                
+                let grandTotal = 0;
+                let rows = '';
+                
+                this.billItems.forEach((item, index) => {
+                    grandTotal += item.total;
+                    
+                    rows += `
+                        <tr>
+                            <td>
+                                <span class="product-name">${item.name}</span>
+                                <div class="product-code">${item.code}</div>
+                            </td>
+                            <td class="price">₹${item.price}</td>
+                            <td>
+                                <div class="qty-control">
+                                    <button class="qty-btn" onclick="billing.updateQuantity(${index}, ${item.quantity - 1})">−</button>
+                                    <input type="number" class="qty-input" value="${item.quantity}" 
+                                           min="1" max="${item.stock}" 
+                                           onchange="billing.updateQuantity(${index}, parseInt(this.value))">
+                                    <button class="qty-btn" onclick="billing.updateQuantity(${index}, ${item.quantity + 1})">+</button>
+                                </div>
+                                <small style="color:#999;">Stock: ${item.stock}</small>
+                            </td>
+                            <td class="price">₹${item.total}</td>
+                            <td>
+                                <span class="remove-btn" onclick="billing.removeItem(${index})">✕</span>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                tbody.innerHTML = rows;
+                itemCount.textContent = this.billItems.reduce((sum, item) => sum + item.quantity, 0) + ' items';
+                totalAmount.textContent = '₹' + grandTotal;
+            }
+
+            async processPayment() {
+    if (this.billItems.length === 0) {
+        this.showToast('No items in bill!', 'error');
+        return;
+    }
+    
+    const total = this.billItems.reduce((sum, item) => sum + item.total, 0);
+    
+    if (!confirm(`Process payment of ₹${total}?`)) {
+        return;
+    }
+    
+    let success = true;
+    let failedItems = [];
+    let deductionResults = [];
+    let saleItems = []; // ← ADD THIS: Store items for sale record
+    
+    this.showToast('Processing payment...', 'info');
+    
+    // Deduct stock from batches
+    for (const item of this.billItems) {
+        if (item.id) {
+            try {
+                // Get latest batch information
+                const batchesResponse = await fetch(`${this.basePath}/api/batches/available/product_id.php?id=${item.id}`);
+                
+                if (batchesResponse.ok) {
+                    const batches = await batchesResponse.json();
+                    
+                    if (batches && batches.length > 0) {
+                        let quantityToDeduct = item.quantity;
+                        
+                        // Sort by expiry (oldest first)
+                        const sortedBatches = batches.sort((a, b) => 
+                            new Date(a.expiry_date) - new Date(b.expiry_date)
+                        );
+                        
+                        for (const batch of sortedBatches) {
+                            if (quantityToDeduct <= 0) break;
+                            
+                            const deductFromThisBatch = Math.min(batch.remaining_quantity, quantityToDeduct);
+                            
+                            const deductResponse = await fetch(`${this.basePath}/api/batches/deduct.php`, {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({ 
+                                    batch_id: batch.id,
+                                    quantity: deductFromThisBatch,
+                                    product_id: item.id
+                                })
+                            });
+                            
+                            if (deductResponse.ok) {
+                                const result = await deductResponse.json();
+                                if (result.success) {
+                                    deductionResults.push({
+                                        product: item.name,
+                                        batch: result.batch,
+                                        deducted: deductFromThisBatch
+                                    });
+                                    quantityToDeduct -= deductFromThisBatch;
+                                }
+                            }
+                        }
+                        
+                        if (quantityToDeduct > 0) {
+                            success = false;
+                            failedItems.push(item.name);
+                        } else {
+                            // ← ADD THIS: Add to sale items for record
+                            saleItems.push({
+                                product_id: item.id,
+                                quantity: item.quantity,
+                                unit_price: item.price,
+                                total_price: item.total
+                            });
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                success = false;
+                failedItems.push(item.name);
+            }
+        }
+    }
+    
+    // ← ADD THIS: Create sale record if all stock deducted
+    if (success && saleItems.length > 0) {
+        try {
+            const saleData = {
+                items: saleItems,
+                subtotal: total,
+                grand_total: total,
+                payment_method: 'cash',
+                payment_status: 'paid',
+                customer_name: 'Walk-in Customer'
+            };
+            
+            console.log('📤 SENDING TO SALES API:', JSON.stringify(saleData, null, 2));
+            
+            const saleResponse = await fetch(`${this.basePath}/api/sales/index.php`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(saleData)
+            });
+            
+            const responseText = await saleResponse.text();
+            console.log('📥 RESPONSE:', responseText);
+            
+            if (saleResponse.ok) {
+                try {
+                    const saleResult = JSON.parse(responseText);
+                    if (saleResult.success) {
+    this.showToast(`✅ Sale #${saleResult.invoice_number} completed!`, 'success');
+
+    // 🔥 Generate invoice FIRST
+    this.generateInvoice(saleResult.invoice_number, total);
+
+    // 🔥 THEN clear bill (IMPORTANT ORDER)
+    this.billItems = [];
+    this.updateBillTable();
+} else {
+                        this.showToast('⚠️ Stock deducted but sale record failed!', 'warning');
+                    }
+                } catch(e) {
+                    this.showToast('✅ Payment successful! Stock deducted.', 'success');
+                }
+            } else {
+                console.error('Sale API error:', responseText);
+                this.showToast('⚠️ Stock deducted but sale API error!', 'warning');
+            }
+        } catch (error) {
+            console.error('Sale record error:', error);
+            this.showToast('⚠️ Stock deducted but sale error!', 'warning');
+        }
+        
+        console.log('💰 PAYMENT SUMMARY:', {
+            deductionResults,
+            saleItems,
+            total
+        });
+        
+        this.billItems = [];
+        this.updateBillTable();
+    } else if (!success) {
+        this.showToast(`❌ Failed for: ${failedItems.join(', ')}`, 'error');
+    }
+}
+            clearBill() {
+                if (this.billItems.length === 0) return;
+                if (confirm('Clear all items from bill?')) {
+                    this.billItems = [];
+                    this.updateBillTable();
+                    this.showToast('Bill cleared', 'success');
+                }
+            }
+
+            // Updated test functions - they now fetch from database
+            async addTestProduct(code, name, price) {
+                // Instead of mock data, fetch from database
+                await this.processScannedBarcode(code);
+            }
+
+            async addRandomProduct() {
+                const testBarcodes = [
+                    '8901234567890',  // Milk
+                    '8901234567891',  // Bread
+                    '8901234567892',  // Biscuit
+                    '8901234567893',  // Juice
+                    '8901234567894',  // Yogurt
+                    '8901234567895',  // Coffee
+                    '8901234567896'   // Tea
+                ];
+                const randomBarcode = testBarcodes[Math.floor(Math.random() * testBarcodes.length)];
+                await this.processScannedBarcode(randomBarcode);
+            }
+
+            showToast(message, type = 'success') {
+                const toast = document.createElement('div');
+                toast.className = `toast ${type}`;
+                toast.textContent = message;
+                document.body.appendChild(toast);
+                setTimeout(() => toast.remove(), 3000);
+            }
+        }
+
+        const billing = new BillingSystem();
+        window.billing = billing;
+
+        function stopCamera() { billing.stopCamera(); }
+        function toggleTestPanel() { 
+            const panel = document.getElementById('testPanel');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+        function addManualProduct() {
+            const barcode = document.getElementById('manualBarcode').value.trim();
+            if (barcode) {
+                billing.processScannedBarcode(barcode);
+                document.getElementById('manualBarcode').value = '';
+            }
+        }
+        function addTestProduct(code, name, price) { billing.addTestProduct(code, name, price); }
+        function addRandomProduct() { billing.addRandomProduct(); }
+        function clearBill() { billing.clearBill(); }
+        function processPayment() { billing.processPayment(); }
+
+        window.addEventListener('beforeunload', () => {
+            if (billing.isScanning) billing.stopCamera();
+        });
+    </script>
+</body>
+</html>

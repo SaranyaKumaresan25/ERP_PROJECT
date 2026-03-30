@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard – Profit Recovery ERP</title>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root{--brand:#0f766e;--brand-dark:#0d5f58;--brand-light:#ccfbf1;--surface:#fff;--bg:#f0faf9;--text:#0f172a;--muted:#64748b;--border:#e2e8f0;--sidebar:#0c1a19;--sidebar-hover:#122e2b;--sidebar-active:#163d39;--red:#ef4444;--green:#10b981;--yellow:#f59e0b;--blue:#3b82f6;--shadow:0 2px 10px rgba(15,118,110,0.08);}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Sora',sans-serif;background:var(--bg);color:var(--text);}
+.app{display:flex;min-height:100vh;}
+.sidebar{width:240px;background:var(--sidebar);position:fixed;height:100vh;display:flex;flex-direction:column;}
+.sb-brand{padding:20px 18px 16px;border-bottom:1px solid rgba(255,255,255,0.06);}
+.sb-brand-inner{display:flex;align-items:center;gap:11px;}
+.sb-ico{width:36px;height:36px;background:var(--brand);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sb-ico i{font-size:15px;color:#fff;}
+.sb-title{font-size:13px;font-weight:600;color:#fff;}
+.sb-sub{font-size:10px;color:rgba(255,255,255,0.4);margin-top:1px;}
+.sb-nav{padding:14px 10px;flex:1;}
+.sb-sect{font-size:9px;font-weight:600;color:rgba(255,255,255,0.28);text-transform:uppercase;letter-spacing:0.8px;padding:0 10px;margin:10px 0 5px;}
+.nav-link{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:8px;color:rgba(255,255,255,0.58);text-decoration:none;font-size:13px;transition:all 0.15s;margin-bottom:2px;}
+.nav-link i{width:17px;font-size:13px;text-align:center;}
+.nav-link:hover{background:var(--sidebar-hover);color:rgba(255,255,255,0.88);}
+.nav-link.active{background:var(--sidebar-active);color:#fff;font-weight:500;}
+.nav-link.active i{color:var(--brand-light);}
+.sb-foot{padding:12px 10px;border-top:1px solid rgba(255,255,255,0.06);}
+.sb-user{display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:8px;}
+.sb-avatar{width:30px;height:30px;background:var(--brand);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#fff;flex-shrink:0;}
+.sb-uname{font-size:11.5px;color:rgba(255,255,255,0.78);font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sb-logout{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.35);font-size:13px;padding:4px;}
+.sb-logout:hover{color:var(--red);}
+.main{margin-left:240px;padding:26px 30px;width:100%;}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px;}
+.page-title h1{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-0.3px;}
+.page-title p{font-size:12px;color:var(--muted);margin-top:3px;}
+.date-chip{background:var(--surface);border:1px solid var(--border);padding:6px 12px;border-radius:20px;font-size:11.5px;color:var(--muted);display:flex;align-items:center;gap:6px;}
+.expiry-banner{display:none;background:#fef3c7;border:1px solid #fde68a;border-left:3px solid var(--yellow);padding:11px 16px;border-radius:10px;margin-bottom:18px;font-size:12.5px;color:#92400e;align-items:center;gap:10px;}
+.expiry-banner.show{display:flex;}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:22px;}
+.stat-card{background:var(--surface);border-radius:12px;padding:18px;box-shadow:var(--shadow);border:1px solid var(--border);transition:transform 0.15s;}
+.stat-card:hover{transform:translateY(-2px);}
+.stat-top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;}
+.stat-label{font-size:11.5px;color:var(--muted);font-weight:500;}
+.stat-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;}
+.ic-t{background:#ccfbf1;color:var(--brand);}
+.ic-b{background:#dbeafe;color:var(--blue);}
+.ic-y{background:#fef3c7;color:var(--yellow);}
+.ic-r{background:#fee2e2;color:var(--red);}
+.stat-val{font-size:26px;font-weight:700;color:var(--text);letter-spacing:-0.5px;}
+.stat-sub{font-size:10.5px;color:var(--muted);margin-top:3px;}
+.activity-card{background:var(--surface);border-radius:12px;padding:20px;box-shadow:var(--shadow);border:1px solid var(--border);}
+.card-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;}
+.card-head h3{font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:8px;}
+.card-head h3 i{color:var(--brand);}
+.live-badge{background:var(--brand-light);color:var(--brand);padding:4px 9px;border-radius:20px;font-size:10.5px;font-weight:600;display:flex;align-items:center;gap:5px;}
+.live-dot{width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.35;}}
+.refresh-btn{background:none;border:1px solid var(--border);padding:5px 9px;border-radius:7px;font-family:'Sora',sans-serif;font-size:11.5px;color:var(--muted);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.15s;}
+.refresh-btn:hover{border-color:var(--brand);color:var(--brand);}
+.act-list{list-style:none;}
+.act-item{display:flex;align-items:center;gap:13px;padding:11px 0;border-bottom:1px solid #f1f5f9;}
+.act-item:last-child{border-bottom:none;}
+.act-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;}
+.ai-create{background:#dcfce7;color:#059669;}.ai-update{background:#dbeafe;color:var(--blue);}.ai-delete{background:#fee2e2;color:var(--red);}.ai-login{background:#f3e8ff;color:#7c3aed;}.ai-batch{background:#fef3c7;color:#92400e;}.ai-sale{background:#cffafe;color:#0891b2;}.ai-def{background:#f1f5f9;color:var(--muted);}
+.act-body{flex:1;}
+.act-title{font-size:12.5px;font-weight:500;color:var(--text);}
+.act-user{font-weight:600;color:var(--brand);font-size:12px;margin-left:4px;}
+.act-detail{font-size:11px;color:var(--green);margin-left:4px;}
+.act-time{font-size:10.5px;color:var(--muted);margin-top:3px;display:flex;align-items:center;gap:4px;}
+.empty-state{text-align:center;padding:36px 20px;color:var(--muted);}
+.empty-state i{font-size:32px;margin-bottom:10px;color:#cbd5e1;display:block;}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-brand-inner">
+      <div class="sb-ico"><i class="fas fa-chart-line"></i></div>
+      <div><div class="sb-title">Profit Recovery ERP</div><div class="sb-sub">Inventory Module</div></div>
+    </div>
+  </div>
+  <div class="sb-nav">
+    <div class="sb-sect">Inventory</div>
+    <a href="/inventory/dashboard" class="nav-link active"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+    <a href="/inventory/products" class="nav-link"><i class="fas fa-box"></i>Products</a>
+    <a href="/inventory/suppliers" class="nav-link"><i class="fas fa-truck"></i>Suppliers</a>
+  </div>
+  <div class="sb-foot">
+    <div class="sb-user">
+      <div class="sb-avatar" id="userAvatar">I</div>
+      <span class="sb-uname" id="userName">Inventory Manager</span>
+      <button class="sb-logout" onclick="logout()" title="Sign out"><i class="fas fa-sign-out-alt"></i></button>
+    </div>
+  </div>
+</div>
+<div class="main">
+  <div class="topbar">
+    <div class="page-title"><h1>Inventory Dashboard</h1><p>Overview of stock, expiry & recent activity</p></div>
+    <div class="date-chip"><i class="far fa-calendar-alt"></i><span id="dateDisplay"></span></div>
+  </div>
+  <div class="expiry-banner" id="expiryBanner">
+    <i class="fas fa-exclamation-triangle"></i>
+    <span id="expiryMsg"></span>
+    <a href="/inventory/products" style="margin-left:auto;font-weight:600;color:#92400e;text-decoration:none;font-size:12px;">View Products →</a>
+  </div>
+  <div class="stats">
+    <div class="stat-card">
+      <div class="stat-top"><div class="stat-label">Total Products</div><div class="stat-ico ic-t"><i class="fas fa-box"></i></div></div>
+      <div class="stat-val" id="totalProducts">—</div><div class="stat-sub">registered items</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top"><div class="stat-label">Total Suppliers</div><div class="stat-ico ic-b"><i class="fas fa-truck"></i></div></div>
+      <div class="stat-val" id="totalSuppliers">—</div><div class="stat-sub">active vendors</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top"><div class="stat-label">Low Stock Items</div><div class="stat-ico ic-y"><i class="fas fa-exclamation-triangle"></i></div></div>
+      <div class="stat-val" id="lowStock">—</div><div class="stat-sub">below minimum level</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-top"><div class="stat-label">Expiring Soon</div><div class="stat-ico ic-r"><i class="fas fa-clock"></i></div></div>
+      <div class="stat-val" id="expiringSoon">—</div><div class="stat-sub">within 7 days</div>
+    </div>
+  </div>
+  <div class="activity-card">
+    <div class="card-head">
+      <h3><i class="fas fa-history"></i>Recent Activities</h3>
+      <div style="display:flex;gap:9px;align-items:center;">
+        <div class="live-badge"><div class="live-dot"></div>Live</div>
+        <button class="refresh-btn" onclick="refreshActivities()"><i class="fas fa-sync-alt"></i>Refresh</button>
+      </div>
+    </div>
+    <ul class="act-list" id="activityList">
+      <li style="text-align:center;padding:24px;color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i> Loading…</li>
+    </ul>
+  </div>
+</div>
+</div>
+<script>
+document.getElementById('dateDisplay').textContent=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+async function checkAuth(){
+  try{
+    const r=await fetch('/api/check-auth',{credentials:'include'});const d=await r.json();
+    if(!d.authenticated){window.location.href='/login';return;}
+    document.getElementById('userName').textContent=d.user.full_name;
+    document.getElementById('userAvatar').textContent=d.user.full_name.charAt(0);
+    loadStats();loadActivities();
+  }catch(e){window.location.href='/login';}
+}
+async function loadStats(){
+  try{
+    const r=await fetch('/api/dashboard/stats',{credentials:'include'});const d=await r.json();
+    document.getElementById('totalProducts').textContent=d.total_products||0;
+    document.getElementById('totalSuppliers').textContent=d.total_suppliers||0;
+    document.getElementById('lowStock').textContent=d.low_stock_items||0;
+    document.getElementById('expiringSoon').textContent=d.expiring_soon||0;
+    if(d.expiring_soon>0){
+      document.getElementById('expiryMsg').textContent=`${d.expiring_soon} product${d.expiring_soon>1?'s':''} expiring within 7 days — take action now.`;
+      document.getElementById('expiryBanner').classList.add('show');
+    }
+  }catch(e){}
+}
+async function loadActivities(){
+  try{
+    const r=await fetch('/api/activities/recent',{credentials:'include'});const d=await r.json();
+    const list=document.getElementById('activityList');
+    if(!d.activities||d.activities.length===0){list.innerHTML='<div class="empty-state"><i class="fas fa-clock"></i><p>No recent activities yet</p></div>';return;}
+    list.innerHTML=d.activities.map(a=>{
+      let cls='ai-def',ic='fa-circle-info';
+      const c=a.action_code||'';
+      if(c.includes('create')||c.includes('add')){cls='ai-create';ic='fa-plus-circle';}
+      else if(c.includes('update')||c.includes('edit')){cls='ai-update';ic='fa-edit';}
+      else if(c.includes('delete')){cls='ai-delete';ic='fa-trash';}
+      else if(c.includes('login')){cls='ai-login';ic='fa-sign-in-alt';}
+      else if(c.includes('batch')||c.includes('receive')){cls='ai-batch';ic='fa-boxes';}
+      else if(c.includes('sale')){cls='ai-sale';ic='fa-shopping-cart';}
+      const t=new Date(a.time).toLocaleString('en-IN',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'});
+      return `<li class="act-item"><div class="act-icon ${cls}"><i class="fas ${ic}"></i></div><div class="act-body"><div class="act-title">${a.action}<span class="act-user">${a.user}</span>${a.detail_text?`<span class="act-detail">${a.detail_text}</span>`:''}</div><div class="act-time"><i class="far fa-clock"></i>${t}</div></div></li>`;
+    }).join('');
+  }catch(e){document.getElementById('activityList').innerHTML='<div style="text-align:center;padding:20px;color:var(--red);">Failed to load activities</div>';}
+}
+async function refreshActivities(){
+  const b=document.querySelector('.refresh-btn');b.innerHTML='<i class="fas fa-spinner fa-spin"></i>';b.disabled=true;
+  await loadActivities();b.innerHTML='<i class="fas fa-sync-alt"></i>Refresh';b.disabled=false;
+}
+async function logout() {
+    try {
+        const response = await fetch('/api/logout', { method: 'POST' });
+        const data = await response.json();
+        
+        if (data.success && data.redirect_url) {
+            window.location.href = data.redirect_url;
+        } else {
+            window.location.href = '/login';
+        }
+    } catch (error) {
+        console.error('Logout error:', error);
+        window.location.href = '/login';
+    }
+}
+setInterval(loadActivities,30000);checkAuth();
+</script>
+</body>
+</html>

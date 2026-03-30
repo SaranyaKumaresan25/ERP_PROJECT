@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Profit Recovery ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/analytics.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>
+                <i class="fas fa-chart-line"></i>
+                Profit Recovery ERP
+            </h2>
+            <p>Enterprise Resource Planning</p>
+        </div>
+        
+        <div class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/admin/users" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>User Management</span>
+            </a>
+            <a href="/inventory/dashboard" class="nav-item">
+                <i class="fas fa-chart-simple"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="/sales/pos" class="nav-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>POS Scanner</span>
+            </a>
+                <a href="/hr/dashboard" class="nav-item">
+        <i class="fas fa-user-tie"></i>
+        <span>HR Management</span>
+    </a>
+            <a href="/finance/dashboard" class="nav-item">
+    <i class="fas fa-wallet"></i>
+    <span>Finance Dashboard</span>
+</a>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Admin User</div>
+                    <div class="user-role" id="userRole">Administrator</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Sign Out
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Admin Dashboard</h1>
+                <p>Overview of system performance and key metrics</p>
+            </div>
+            <div class="date-badge" id="currentDate"></div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Total Products</h3>
+                    <div class="stat-number" id="totalProducts">0</div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-box"></i> Active inventory
+                    </div>
+                </div>
+                <div class="stat-icon primary">
+                    <i class="fas fa-box"></i>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Total Suppliers</h3>
+                    <div class="stat-number" id="totalSuppliers">0</div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-truck"></i> Active vendors
+                    </div>
+                </div>
+                <div class="stat-icon primary">
+                    <i class="fas fa-truck"></i>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Total Users</h3>
+                    <div class="stat-number" id="totalUsers">0</div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-users"></i> Active accounts
+                    </div>
+                </div>
+                <div class="stat-icon primary">
+                    <i class="fas fa-users"></i>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Today's Revenue</h3>
+                    <div class="stat-number" id="todayRevenue">₹0</div>
+                    <div class="stat-trend" id="revenueTrend">
+                        <i class="fas fa-chart-line"></i> Today's sales
+                    </div>
+                </div>
+                <div class="stat-icon success">
+                    <i class="fas fa-rupee-sign"></i>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Low Stock Items</h3>
+                    <div class="stat-number" id="lowStock">0</div>
+                    <div class="stat-trend trend-down">
+                        <i class="fas fa-exclamation-triangle"></i> Needs attention
+                    </div>
+                </div>
+                <div class="stat-icon warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Expiring Soon</h3>
+                    <div class="stat-number" id="expiringSoon">0</div>
+                    <div class="stat-trend trend-down">
+                        <i class="fas fa-clock"></i> Within 7 days
+                    </div>
+                </div>
+                <div class="stat-icon danger">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts & Activity Section -->
+        <div class="charts-section">
+            <div class="chart-card">
+                <h3>
+                    <i class="fas fa-exclamation-triangle"></i>
+                    Risk Alerts
+                    <span style="font-size: 0.7rem; margin-left: auto; color: var(--gray);" id="alertCount"></span>
+                </h3>
+                <div id="riskAlertsList">
+                    <div style="text-align: center; padding: 2rem; color: var(--gray);">
+                        <i class="fas fa-spinner fa-spin"></i> Loading alerts...
+                    </div>
+                </div>
+            </div>
+            
+            <div class="activity-card">
+                <h3>
+                    <i class="fas fa-history"></i>
+                    Recent Activities
+                    <button onclick="refreshActivities()" style="margin-left: auto; background: none; border: none; cursor: pointer; color: var(--gray);">
+                        <i class="fas fa-sync-alt"></i>
+                    </button>
+                </h3>
+                <div class="activity-list" id="activityList">
+                    <div style="text-align: center; padding: 2rem; color: var(--gray);">
+                        <i class="fas fa-spinner fa-spin"></i> Loading activities...
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Profit Recovery Analytics Section -->
+        <div class="chart-card" style="margin-bottom: 2rem;">
+            <h3>
+                <i class="fas fa-chart-line"></i>
+                Profit Recovery Analytics
+                <button onclick="refreshAnalytics()" style="margin-left: auto; background: none; border: none; cursor: pointer; color: var(--primary);">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </h3>
+            <div style="overflow-x: auto;">
+                <table style="width: 100%; border-collapse: collapse;">
+                    <thead>
+                        <tr>
+                            <th style="text-align: left; padding: 0.75rem; background: var(--light-gray);">Product</th>
+                            <th style="text-align: left; padding: 0.75rem; background: var(--light-gray);">Stock</th>
+                            <th style="text-align: left; padding: 0.75rem; background: var(--light-gray);">Expiry</th>
+                            <th style="text-align: left; padding: 0.75rem; background: var(--light-gray);">Risk</th>
+                            <th style="text-align: left; padding: 0.75rem; background: var(--light-gray);">Discount</th>
+                            <th style="text-align: left; padding: 0.75rem; background: var(--light-gray);">Potential Loss</th>
+                            <th style="text-align: left; padding: 0.75rem; background: var(--light-gray);">Recoverable</th>
+                            <th style="text-align: left; padding: 0.75rem; background: var(--light-gray);">Efficiency</th>
+                        </thead>
+                    <tbody id="analyticsTableBody">
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 2rem;">
+                                <i class="fas fa-spinner fa-spin"></i> Loading analytics...
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="chart-card">
+            <h3>
+                <i class="fas fa-bolt"></i>
+                Quick Actions
+            </h3>
+            <div class="quick-actions">
+                <button class="quick-btn primary" onclick="window.location.href='/inventory/products'">
+                    <i class="fas fa-plus"></i>
+                    Add New Product
+                </button>
+                <button class="quick-btn success" onclick="window.location.href='/inventory/suppliers'">
+                    <i class="fas fa-plus"></i>
+                    Add New Supplier
+                </button>
+                <button class="quick-btn info" onclick="window.location.href='/admin/users'">
+                    <i class="fas fa-user-plus"></i>
+                    Add New User
+                </button>
+                <button class="quick-btn" onclick="window.location.href='/sales/pos'" style="background: #8b5cf6; color: white;">
+                    <i class="fas fa-camera"></i>
+                    Open POS Scanner
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        // Format currency
+        function formatCurrency(amount) {
+            return '₹' + parseFloat(amount).toLocaleString('en-IN', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: 2
+            });
+        }
+
+        // Format date
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-IN', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric'
+            });
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Check authentication
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth');
+                const data = await response.json();
+                
+                if (!data.authenticated) {
+                    window.location.href = '/login';
+                    return;
+                }
+                
+                document.getElementById('userName').textContent = data.user.full_name;
+                document.getElementById('userAvatar').textContent = data.user.full_name.charAt(0);
+                document.getElementById('userRole').textContent = data.user.role.replace('_', ' ').toUpperCase();
+                
+                loadDashboardStats();
+                loadRiskAlerts();
+                loadRecentActivities();
+                loadAnalyticsData();
+            } catch (error) {
+                console.error('Auth error:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        // Load dashboard stats
+        async function loadDashboardStats() {
+            try {
+                const response = await fetch('/api/dashboard/stats');
+                const data = await response.json();
+                
+                document.getElementById('totalProducts').textContent = data.total_products || 0;
+                document.getElementById('totalSuppliers').textContent = data.total_suppliers || 0;
+                document.getElementById('totalUsers').textContent = data.total_users || 0;
+                document.getElementById('todayRevenue').textContent = formatCurrency(data.today_revenue || 0);
+                document.getElementById('lowStock').textContent = data.low_stock_items || 0;
+                document.getElementById('expiringSoon').textContent = data.expiring_soon || 0;
+                
+                const revenueTrend = document.getElementById('revenueTrend');
+                if (data.today_sales_count > 0) {
+                    revenueTrend.innerHTML = `<i class="fas fa-chart-line"></i> ${data.today_sales_count} sale${data.today_sales_count > 1 ? 's' : ''} today`;
+                    revenueTrend.className = 'stat-trend trend-up';
+                } else {
+                    revenueTrend.innerHTML = `<i class="fas fa-chart-line"></i> No sales today`;
+                    revenueTrend.className = 'stat-trend';
+                }
+                
+            } catch (error) {
+                console.error('Failed to load stats:', error);
+            }
+        }
+
+        // Load risk alerts
+        async function loadRiskAlerts() {
+            try {
+                const response = await fetch('/api/analytics/metrics');
+                const data = await response.json();
+                
+                const alertsContainer = document.getElementById('riskAlertsList');
+                const alertCount = document.getElementById('alertCount');
+                
+                if (data.alerts && data.alerts.length > 0) {
+                    alertCount.textContent = `(${data.alerts.length} active)`;
+                    alertsContainer.innerHTML = data.alerts.map(alert => `
+                        <div class="risk-alert ${alert.risk_level.toLowerCase()}">
+                            <div class="product">
+                                <i class="fas fa-box"></i> ${alert.message.split(' ')[0] || 'Product'}
+                            </div>
+                            <div class="message">${alert.message}</div>
+                            <div class="days">
+                                <i class="far fa-clock"></i> ${new Date(alert.created_at).toLocaleString()}
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    alertCount.textContent = '(0 active)';
+                    alertsContainer.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: var(--success);">
+                            <i class="fas fa-check-circle"></i>
+                            <p style="margin-top: 0.5rem;">No active alerts</p>
+                        </div>
+                    `;
+                }
+                
+                if (data.metrics && data.metrics.length > 0) {
+                    const analyticsBody = document.getElementById('analyticsTableBody');
+                    analyticsBody.innerHTML = data.metrics.map(m => `
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.75rem;"><strong>${m.product_name}</strong></td>
+                            <td style="padding: 0.75rem;">${m.quantity}</td>
+                            <td style="padding: 0.75rem;">${formatDate(m.expiry_date)}</td>
+                            <td style="padding: 0.75rem;">
+                                <span class="role-badge ${m.risk_level.toLowerCase()}">${m.risk_level}</span>
+                            </td>
+                            <td style="padding: 0.75rem;">${m.suggested_discount}%</td>
+                            <td style="padding: 0.75rem;">${formatCurrency(m.potential_loss)}</td>
+                            <td style="padding: 0.75rem;">${formatCurrency(m.recoverable_amount)}</td>
+                            <td style="padding: 0.75rem;">
+                                <span style="color: ${m.recovery_efficiency > 100 ? 'var(--success)' : 'var(--warning)'}">
+                                    ${Math.round(m.recovery_efficiency)}%
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+                
+            } catch (error) {
+                console.error('Failed to load alerts:', error);
+                document.getElementById('riskAlertsList').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--danger);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p style="margin-top: 0.5rem;">Failed to load alerts</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Load recent activities
+        async function loadRecentActivities() {
+            try {
+                const response = await fetch('/api/activities/recent');
+                const data = await response.json();
+                
+                const activityList = document.getElementById('activityList');
+                
+                if (!data.activities || data.activities.length === 0) {
+                    activityList.innerHTML = `
+                        <div style="text-align: center; padding: 2rem; color: var(--gray);">
+                            <i class="fas fa-clock"></i>
+                            <p style="margin-top: 0.5rem;">No recent activities</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                activityList.innerHTML = data.activities.map(act => {
+                    let iconClass = 'update';
+                    let icon = 'fa-edit';
+                    
+                    if (act.action.includes('create') || act.action.includes('added')) {
+                        iconClass = 'create';
+                        icon = 'fa-plus-circle';
+                    } else if (act.action.includes('delete')) {
+                        iconClass = 'delete';
+                        icon = 'fa-trash';
+                    } else if (act.action.includes('login')) {
+                        iconClass = 'login';
+                        icon = 'fa-sign-in-alt';
+                    }
+                    
+                    const time = new Date(act.time).toLocaleString();
+                    
+                    return `
+                        <div class="activity-item">
+                            <div class="activity-icon ${iconClass}">
+                                <i class="fas ${icon}"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">
+                                    ${act.action}
+                                    <span class="activity-user">${act.user}</span>
+                                    ${act.detail_text ? `<span style="color: var(--success);">${act.detail_text}</span>` : ''}
+                                </div>
+                                <div class="activity-time">
+                                    <i class="far fa-clock"></i> ${time}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Failed to load activities:', error);
+                document.getElementById('activityList').innerHTML = `
+                    <div style="text-align: center; padding: 2rem; color: var(--danger);">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <p style="margin-top: 0.5rem;">Failed to load activities</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Load analytics data
+        async function loadAnalyticsData() {
+            try {
+                const response = await fetch('/api/analytics/metrics');
+                const data = await response.json();
+                
+                if (data.metrics && data.metrics.length > 0) {
+                    const analyticsBody = document.getElementById('analyticsTableBody');
+                    analyticsBody.innerHTML = data.metrics.map(m => `
+                        <tr style="border-bottom: 1px solid var(--border);">
+                            <td style="padding: 0.75rem;"><strong>${m.product_name}</strong></td>
+                            <td style="padding: 0.75rem;">${m.quantity}</td>
+                            <td style="padding: 0.75rem;">${formatDate(m.expiry_date)}</td>
+                            <td style="padding: 0.75rem;">
+                                <span class="role-badge ${m.risk_level.toLowerCase()}">${m.risk_level}</span>
+                            </td>
+                            <td style="padding: 0.75rem;">${m.suggested_discount}%</td>
+                            <td style="padding: 0.75rem;">${formatCurrency(m.potential_loss)}</td>
+                            <td style="padding: 0.75rem;">${formatCurrency(m.recoverable_amount)}</td>
+                            <td style="padding: 0.75rem;">
+                                <span style="color: ${m.recovery_efficiency > 100 ? 'var(--success)' : 'var(--warning)'}">
+                                    ${Math.round(m.recovery_efficiency)}%
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+                
+            } catch (error) {
+                console.error('Failed to load analytics:', error);
+            }
+        }
+
+        // Refresh functions
+        async function refreshActivities() {
+            const refreshBtn = document.querySelector('.activity-card button');
+            refreshBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+            await loadRecentActivities();
+            await loadRiskAlerts();
+            await loadAnalyticsData();
+            refreshBtn.innerHTML = '<i class="fas fa-sync-alt"></i>';
+            showToast('Data refreshed successfully', 'success');
+        }
+        
+        async function refreshAnalytics() {
+            try {
+                const response = await fetch('/api/analytics/refresh', { method: 'POST' });
+                if (response.ok) {
+                    showToast('Analytics refreshed successfully', 'success');
+                    await loadRiskAlerts();
+                    await loadAnalyticsData();
+                } else {
+                    showToast('Failed to refresh analytics', 'error');
+                }
+            } catch (error) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        // Set current date
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+
+                // Logout function
+        async function logout() {
+            try {
+                const response = await fetch('/api/logout', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success && data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.href = '/login';
+            }
+        }
+
+        // Auto-refresh every 30 seconds
+        setInterval(() => {
+            loadRecentActivities();
+            loadRiskAlerts();
+        }, 30000);
+
+        // Initialize
+        checkAuth();
+    </script>
+</body>
+</html>

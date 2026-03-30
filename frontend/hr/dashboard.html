@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HR Dashboard - Profit Recovery ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --primary-light: #dbeafe;
+            --success: #10b981;
+            --success-light: #dcfce7;
+            --warning: #f59e0b;
+            --warning-light: #fef3c7;
+            --danger: #ef4444;
+            --danger-light: #fee2e2;
+            --info: #3b82f6;
+            --info-light: #dbeafe;
+            --dark: #0f172a;
+            --dark-sidebar: #0c1a19;
+            --dark-sidebar-hover: #122e2b;
+            --dark-sidebar-active: #163d39;
+            --gray: #64748b;
+            --gray-light: #94a3b8;
+            --light-gray: #f1f5f9;
+            --border: #e2e8f0;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--light-gray); color: var(--dark); line-height: 1.5; }
+        
+        /* Sidebar Styles */
+        .sidebar {
+            width: 280px;
+            background: var(--dark-sidebar);
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+            transition: all 0.3s;
+            overflow-y: auto;
+        }
+        .sidebar-brand { padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1rem; }
+        .sidebar-brand h2 { color: white; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .sidebar-brand h2 i { color: var(--primary); }
+        .sidebar-brand p { color: rgba(255,255,255,0.5); font-size: 0.7rem; margin-top: 0.25rem; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 0.25rem; padding: 0 1rem 1rem; }
+        .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; transition: all 0.2s; font-size: 0.9rem; }
+        .nav-item i { width: 20px; font-size: 1rem; }
+        .nav-item:hover { background: var(--dark-sidebar-hover); color: white; }
+        .nav-item.active { background: var(--dark-sidebar-active); color: white; border-left: 3px solid var(--primary); }
+        .sidebar-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); background: var(--dark-sidebar); }
+        .user-info { display: flex; align-items: center; gap: 0.75rem; color: rgba(255,255,255,0.7); margin-bottom: 1rem; }
+        .user-avatar { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; font-size: 1rem; }
+        .user-details { flex: 1; }
+        .user-name { font-weight: 600; color: white; font-size: 0.9rem; }
+        .user-role { font-size: 0.7rem; opacity: 0.6; color: rgba(255,255,255,0.6); }
+        .logout-btn { width: 100%; padding: 0.75rem; background: rgba(239,68,68,0.2); border: none; border-radius: 8px; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem; transition: all 0.2s; }
+        .logout-btn:hover { background: rgba(239,68,68,0.3); }
+        
+        /* Main Content */
+        .main-content { margin-left: 280px; padding: 2rem; min-height: 100vh; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .page-title h1 { font-size: 1.75rem; font-weight: 700; color: var(--dark); }
+        .page-title p { color: var(--gray); font-size: 0.85rem; margin-top: 0.25rem; }
+        .date-badge { background: var(--white); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; color: var(--gray); box-shadow: var(--shadow-sm); border: 1px solid var(--border); }
+        
+        /* Announcement Section */
+        .announcement-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 16px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            border: 1px solid #fed7aa;
+        }
+        .announcement-section i { font-size: 1.8rem; color: #d97706; }
+        .announcement-input { 
+            flex: 1; 
+            padding: 0.75rem 1rem; 
+            border: none; 
+            border-radius: 10px; 
+            font-size: 0.9rem;
+            background: white;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .announcement-input:focus { outline: none; box-shadow: 0 0 0 2px var(--primary); }
+        .announcement-send { 
+            background: #d97706; 
+            color: white; 
+            border: none; 
+            padding: 0.75rem 1.5rem; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s;
+        }
+        .announcement-send:hover { background: #b45309; transform: translateY(-1px); }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--border);
+            transition: all 0.3s;
+        }
+        .stat-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+        .stat-info h3 { font-size: 0.85rem; font-weight: 500; color: var(--gray); margin-bottom: 0.5rem; }
+        .stat-number { font-size: 2rem; font-weight: 700; color: var(--dark); }
+        .stat-trend { font-size: 0.7rem; color: var(--gray); margin-top: 0.5rem; }
+        .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .stat-icon.primary { background: var(--primary-light); color: var(--primary); }
+        .stat-icon.success { background: var(--success-light); color: var(--success); }
+        .stat-icon.warning { background: var(--warning-light); color: var(--warning); }
+        .stat-icon.danger { background: var(--danger-light); color: var(--danger); }
+        
+        /* Recent Activities */
+        .activity-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        .activity-card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .activity-list { max-height: 400px; overflow-y: auto; }
+        .activity-item { display: flex; gap: 1rem; padding: 1rem 0; border-bottom: 1px solid var(--border); }
+        .activity-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
+        .activity-icon.create { background: var(--success-light); color: var(--success); }
+        .activity-icon.update { background: var(--info-light); color: var(--info); }
+        .activity-icon.delete { background: var(--danger-light); color: var(--danger); }
+        .activity-details { flex: 1; }
+        .activity-title { font-weight: 500; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .activity-user { color: var(--primary); font-size: 0.8rem; margin-left: 0.5rem; }
+        .activity-time { font-size: 0.7rem; color: var(--gray); }
+        
+        /* Toast */
+        .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 1100; }
+        .toast {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--success);
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .main-content { margin-left: 0; }
+        }
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .main-content { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2><i class="fas fa-chart-line"></i> Profit Recovery ERP</h2>
+            <p>Enterprise Resource Planning</p>
+        </div>
+        <div class="sidebar-nav">
+            <a href="/hr/dashboard" class="nav-item active"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+            <a href="/hr/employees" class="nav-item"><i class="fas fa-user-tie"></i><span>Employees</span></a>
+            <a href="/hr/attendance" class="nav-item"><i class="fas fa-calendar-check"></i><span>Attendance</span></a>
+            <a href="/hr/leaves" class="nav-item"><i class="fas fa-umbrella-beach"></i><span>Leaves</span></a>
+            <a href="/hr/payroll" class="nav-item"><i class="fas fa-money-bill-wave"></i><span>Payroll</span></a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Admin User</div>
+                    <div class="user-role" id="userRole">Administrator</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Human Resources Dashboard</h1>
+                <p>Manage employees, attendance, leaves, and payroll</p>
+            </div>
+            <div class="date-badge" id="currentDate"></div>
+        </div>
+
+        <!-- Announcement Section -->
+        <div class="announcement-section">
+            <i class="fas fa-bullhorn"></i>
+            <input type="text" id="announcementInput" class="announcement-input" placeholder="Type an announcement to send to all employees...">
+            <button class="announcement-send" onclick="sendAnnouncement()">
+                <i class="fas fa-paper-plane"></i> Send Announcement
+            </button>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Total Employees</h3>
+                    <div class="stat-number" id="totalEmployees">0</div>
+                    <div class="stat-trend"><i class="fas fa-users"></i> Active staff</div>
+                </div>
+                <div class="stat-icon primary"><i class="fas fa-user-tie"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Today's Attendance</h3>
+                    <div class="stat-number" id="todayAttendance">0</div>
+                    <div class="stat-trend" id="attendanceRate">0% present</div>
+                </div>
+                <div class="stat-icon success"><i class="fas fa-calendar-check"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Pending Leaves</h3>
+                    <div class="stat-number" id="pendingLeaves">0</div>
+                    <div class="stat-trend"><i class="fas fa-clock"></i> Awaiting approval</div>
+                </div>
+                <div class="stat-icon warning"><i class="fas fa-umbrella-beach"></i></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>On Leave Today</h3>
+                    <div class="stat-number" id="onLeaveToday">0</div>
+                    <div class="stat-trend"><i class="fas fa-bed"></i> Out of office</div>
+                </div>
+                <div class="stat-icon danger"><i class="fas fa-calendar-times"></i></div>
+            </div>
+        </div>
+
+        <!-- Recent Activities Section -->
+        <div class="activity-card">
+            <h3><i class="fas fa-history"></i> Recent HR Activities</h3>
+            <div class="activity-list" id="activityList">
+                <div style="text-align: center; padding: 2rem; color: var(--gray);">
+                    <i class="fas fa-spinner fa-spin"></i> Loading activities...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth');
+                const data = await response.json();
+                if (!data.authenticated) {
+                    window.location.href = '/login';
+                    return false;
+                }
+                document.getElementById('userName').textContent = data.user.full_name;
+                document.getElementById('userAvatar').textContent = data.user.full_name.charAt(0);
+                document.getElementById('userRole').textContent = data.user.role.replace('_', ' ').toUpperCase();
+                return true;
+            } catch (error) {
+                window.location.href = '/login';
+                return false;
+            }
+        }
+
+        async function loadDashboardStats() {
+    try {
+        const response = await fetch('/api/hr/dashboard/stats');
+        const data = await response.json();
+        
+        console.log('Dashboard stats received:', data);  // ADD THIS DEBUG
+        
+        document.getElementById('totalEmployees').textContent = data.total_employees || 0;
+        document.getElementById('todayAttendance').textContent = data.today_attendance || 0;
+        document.getElementById('pendingLeaves').textContent = data.pending_leaves || 0;
+        document.getElementById('onLeaveToday').textContent = data.on_leave_today || 0;
+        
+        const attendanceRate = Math.round(data.attendance_rate || 0);
+        document.getElementById('attendanceRate').innerHTML = `${attendanceRate}% present`;
+        
+    } catch (error) {
+        console.error('Failed to load stats:', error);
+        showToast('Failed to load dashboard statistics', 'error');
+    }
+}
+
+async function loadActivities() {
+    try {
+        const response = await fetch('/api/activities/recent?module=hr&limit=10');
+        console.log('Activities response status:', response.status);  // ADD THIS DEBUG
+        
+        const data = await response.json();
+        console.log('Activities data received:', data);  // ADD THIS DEBUG
+        
+        const activityList = document.getElementById('activityList');
+        
+        if (!data.activities || data.activities.length === 0) {
+            activityList.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--gray);"><i class="fas fa-info-circle"></i> No recent activities</div>';
+            return;
+        }
+        
+        activityList.innerHTML = data.activities.map(act => {
+            let iconClass = 'update';
+            let iconName = 'edit';
+            if (act.action && act.action.includes('create')) {
+                iconClass = 'create';
+                iconName = 'plus';
+            } else if (act.action && act.action.includes('delete')) {
+                iconClass = 'delete';
+                iconName = 'trash';
+            }
+            
+            return `
+                <div class="activity-item">
+                    <div class="activity-icon ${iconClass}">
+                        <i class="fas fa-${iconName}"></i>
+                    </div>
+                    <div class="activity-details">
+                        <div class="activity-title">
+                            ${act.action ? act.action.replace(/_/g, ' ').toUpperCase() : 'Activity'}
+                            <span class="activity-user">${act.user || 'System'}</span>
+                        </div>
+                        <div class="activity-time">${act.time ? new Date(act.time).toLocaleString() : ''}</div>
+                        <div style="font-size: 0.8rem; color: var(--gray);">${act.detail_text || act.module || 'HR Activity'}</div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+    } catch (error) {
+        console.error('Failed to load activities:', error);
+        document.getElementById('activityList').innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load activities</div>';
+    }
+}
+
+        async function loadActivities() {
+            try {
+                const response = await fetch('/api/activities/recent?module=hr&limit=10');
+                const data = await response.json();
+                const activityList = document.getElementById('activityList');
+                
+                if (!data.activities || data.activities.length === 0) {
+                    activityList.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--gray);"><i class="fas fa-info-circle"></i> No recent activities</div>';
+                    return;
+                }
+                
+                activityList.innerHTML = data.activities.map(act => {
+                    let iconClass = 'update';
+                    let iconName = 'edit';
+                    if (act.action.includes('create')) {
+                        iconClass = 'create';
+                        iconName = 'plus';
+                    } else if (act.action.includes('delete')) {
+                        iconClass = 'delete';
+                        iconName = 'trash';
+                    }
+                    
+                    return `
+                        <div class="activity-item">
+                            <div class="activity-icon ${iconClass}">
+                                <i class="fas fa-${iconName}"></i>
+                            </div>
+                            <div class="activity-details">
+                                <div class="activity-title">
+                                    ${act.action.replace(/_/g, ' ').toUpperCase()}
+                                    <span class="activity-user">${act.user || 'System'}</span>
+                                </div>
+                                <div class="activity-time">${new Date(act.time).toLocaleString()}</div>
+                                <div style="font-size: 0.8rem; color: var(--gray);">${act.detail_text || act.module || 'HR Activity'}</div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+            } catch (error) {
+                console.error('Failed to load activities:', error);
+                document.getElementById('activityList').innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load activities</div>';
+            }
+        }
+
+        async function sendAnnouncement() {
+            const message = document.getElementById('announcementInput').value.trim();
+            if (!message) {
+                showToast('Please enter an announcement message', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/hr/announcements/send', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message })
+                });
+                
+                if (response.ok) {
+                    showToast('Announcement sent to all employees');
+                    document.getElementById('announcementInput').value = '';
+                    loadActivities();
+                } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to send announcement', 'error');
+                }
+            } catch (error) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        async function logout() {
+            try {
+                await fetch('/api/logout', { method: 'POST' });
+                window.location.href = '/login';
+            } catch (error) {
+                window.location.href = '/login';
+            }
+        }
+
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        checkAuth().then(() => {
+            loadDashboardStats();
+            loadActivities();
+        });
+        
+        // Refresh activities every 30 seconds
+        setInterval(() => { loadActivities(); }, 30000);
+    </script>
+</body>
+</html>

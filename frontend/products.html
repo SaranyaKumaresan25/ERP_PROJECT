@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Products Management - Profit Recovery ERP</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="erp-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <h1><i class="fas fa-cubes"></i> Profit Recovery ERP</h1>
+                <span>Products Management Module</span>
+            </div>
+            <div class="user-info">
+                <span class="online-badge"><i class="fas fa-circle"></i> ONLINE</span>
+                <span>Welcome, Admin</span>
+                <div class="avatar">A</div>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-menu">
+            <a href="/" class="nav-item"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="/products" class="nav-item active"><i class="fas fa-box"></i> Products</a>
+            <a href="/suppliers" class="nav-item"><i class="fas fa-truck"></i> Suppliers</a>
+            <a href="#" class="nav-item"><i class="fas fa-layer-group"></i> Batches</a>
+            <a href="#" class="nav-item"><i class="fas fa-chart-line"></i> Reports</a>
+        </div>
+
+        <!-- Quick Actions Bar -->
+        <div class="quick-actions-bar">
+            <button class="btn btn-primary" onclick="openAddProductModal()">
+                <i class="fas fa-plus"></i> Add New Product
+            </button>
+            <button class="btn btn-secondary" onclick="exportProducts()">
+                <i class="fas fa-download"></i> Export
+            </button>
+            <button class="btn btn-secondary" onclick="importProducts()">
+                <i class="fas fa-upload"></i> Import
+            </button>
+            <button class="btn btn-secondary" onclick="printBarcodes()">
+                <i class="fas fa-barcode"></i> Print Barcodes
+            </button>
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search products by name, barcode, SKU..." onkeyup="debounceSearch()">
+            </div>
+        </div>
+
+        <!-- Filters Bar -->
+        <div class="filters-bar">
+            <div class="filter-group">
+                <label>Category:</label>
+                <select id="categoryFilter" onchange="loadProducts()">
+                    <option value="all">All Categories</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Status:</label>
+                <select id="statusFilter" onchange="loadProducts()">
+                    <option value="all">All Products</option>
+                    <option value="active">Active Only</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="low_stock">Low Stock</option>
+                    <option value="expiring">Expiring Soon</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label>Per Page:</label>
+                <select id="perPageFilter" onchange="loadProducts()">
+                    <option value="10">10</option>
+                    <option value="25" selected>25</option>
+                    <option value="50">50</option>
+                    <option value="100">100</option>
+                </select>
+            </div>
+            <div class="filter-stats">
+                <span id="totalProducts">0</span> products found
+            </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="table-container">
+            <table class="data-table" id="productsTable">
+                <thead>
+                    <tr>
+                        <th width="40"><input type="checkbox" id="selectAll" onchange="toggleAll()"></th>
+                        <th>Image</th>
+                        <th>Product Code</th>
+                        <th>Barcode</th>
+                        <th>Product Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="productsTableBody">
+                    <tr>
+                        <td colspan="10" class="loading-row">
+                            <div class="loading-spinner"></div>
+                            Loading products...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="pagination" id="pagination">
+            <button class="page-btn" onclick="changePage(1)" id="firstPage"><i class="fas fa-angle-double-left"></i></button>
+            <button class="page-btn" onclick="changePage(currentPage - 1)" id="prevPage"><i class="fas fa-angle-left"></i></button>
+            <span id="pageInfo">Page 1 of 1</span>
+            <button class="page-btn" onclick="changePage(currentPage + 1)" id="nextPage"><i class="fas fa-angle-right"></i></button>
+            <button class="page-btn" onclick="changePage(totalPages)" id="lastPage"><i class="fas fa-angle-double-right"></i></button>
+        </div>
+
+        <!-- Add/Edit Product Modal -->
+        <div id="productModal" class="modal">
+            <div class="modal-content modal-lg">
+                <div class="modal-header">
+                    <h2 id="modalTitle"><i class="fas fa-plus-circle"></i> Add New Product</h2>
+                    <button class="close-btn" onclick="closeModal()">&times;</button>
+                </div>
+                <form id="productForm" onsubmit="saveProduct(event)">
+                    <input type="hidden" id="productId">
+                    
+                    <!-- Tabs -->
+                    <div class="modal-tabs">
+                        <button type="button" class="tab-btn active" onclick="switchTab('basic')">Basic Info</button>
+                        <button type="button" class="tab-btn" onclick="switchTab('pricing')">Pricing & Stock</button>
+                        <button type="button" class="tab-btn" onclick="switchTab('attributes')">Attributes</button>
+                        <button type="button" class="tab-btn" onclick="switchTab('suppliers')">Suppliers</button>
+                    </div>
+
+                    <!-- Basic Info Tab -->
+                    <div id="tab-basic" class="tab-content active">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Product Name <span class="required">*</span></label>
+                                <input type="text" id="productName" required placeholder="Enter product name">
+                            </div>
+                            <div class="form-group">
+                                <label>Product Code</label>
+                                <input type="text" id="productCode" placeholder="Auto-generated" readonly>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Barcode</label>
+                                <div class="barcode-input-group">
+                                    <input type="text" id="barcode" placeholder="Enter or scan barcode">
+                                    <button type="button" class="btn-icon" onclick="generateBarcode()" title="Generate Barcode">
+                                        <i class="fas fa-qrcode"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>HSN Code</label>
+                                <input type="text" id="hsnCode" placeholder="HSN/SAC code">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Description</label>
+                            <textarea id="description" rows="3" placeholder="Product description"></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select id="category">
+                                    <option value="">Select Category</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Sub Category</label>
+                                <input type="text" id="subCategory" placeholder="Sub category">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Brand</label>
+                                <input type="text" id="brand" placeholder="Brand name">
+                            </div>
+                            <div class="form-group">
+                                <label>Unit Type</label>
+                                <select id="unitType">
+                                    <option value="piece">Piece</option>
+                                    <option value="kg">Kilogram</option>
+                                    <option value="gram">Gram</option>
+                                    <option value="liter">Liter</option>
+                                    <option value="ml">Milliliter</option>
+                                    <option value="box">Box</option>
+                                    <option value="packet">Packet</option>
+                                    <option value="dozen">Dozen</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Unit Value</label>
+                                <input type="number" id="unitValue" step="0.01" placeholder="e.g., 1 for 1kg">
+                            </div>
+                            <div class="form-group">
+                                <label>Weight (kg)</label>
+                                <input type="number" id="weightKg" step="0.001" placeholder="0.000">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing & Stock Tab -->
+                    <div id="tab-pricing" class="tab-content">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Cost Price <span class="required">*</span></label>
+                                <input type="number" id="costPrice" step="0.01" required placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label>Selling Price <span class="required">*</span></label>
+                                <input type="number" id="sellingPrice" step="0.01" required placeholder="0.00">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>MRP</label>
+                                <input type="number" id="mrp" step="0.01" placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label>GST Rate (%)</label>
+                                <select id="gstRate">
+                                    <option value="0">0%</option>
+                                    <option value="5">5%</option>
+                                    <option value="12">12%</option>
+                                    <option value="18">18%</option>
+                                    <option value="28">28%</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Min Stock Level</label>
+                                <input type="number" id="minStockLevel" value="10">
+                            </div>
+                            <div class="form-group">
+                                <label>Max Stock Level</label>
+                                <input type="number" id="maxStockLevel" value="1000">
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Reorder Level</label>
+                                <input type="number" id="reorderLevel" value="50">
+                            </div>
+                            <div class="form-group">
+                                <label>Reorder Quantity</label>
+                                <input type="number" id="reorderQuantity" value="100">
+                            </div>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" id="isPerishable" onchange="toggleExpiryFields()">
+                                Perishable Product
+                            </label>
+                            <label>
+                                <input type="checkbox" id="requiresRefrigeration">
+                                Requires Refrigeration
+                            </label>
+                            <label>
+                                <input type="checkbox" id="discountAllowed" checked>
+                                Discount Allowed
+                            </label>
+                        </div>
+
+                        <div id="expiryFields" style="display: none;">
+                            <div class="form-group">
+                                <label>Shelf Life (Days)</label>
+                                <input type="number" id="shelfLifeDays" value="7">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Attributes Tab -->
+                    <div id="tab-attributes" class="tab-content">
+                        <div id="dynamicAttributes">
+                            <!-- Dynamic attributes will be loaded here -->
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addCustomAttribute()">
+                            <i class="fas fa-plus"></i> Add Custom Attribute
+                        </button>
+                    </div>
+
+                    <!-- Suppliers Tab -->
+                    <div id="tab-suppliers" class="tab-content">
+                        <div class="supplier-list" id="supplierMappings">
+                            <!-- Supplier mappings will be loaded here -->
+                        </div>
+                        <button type="button" class="btn btn-secondary" onclick="addSupplierMapping()">
+                            <i class="fas fa-plus"></i> Link Supplier
+                        </button>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="saveBtn">
+                            <i class="fas fa-save"></i> Save Product
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- View Product Modal -->
+        <div id="viewProductModal" class="modal">
+            <div class="modal-content modal-lg">
+                <div class="modal-header">
+                    <h2><i class="fas fa-eye"></i> Product Details</h2>
+                    <button class="close-btn" onclick="closeViewModal()">&times;</button>
+                </div>
+                <div id="productDetails" class="product-details">
+                    <!-- Product details will be loaded here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Barcode Preview Modal -->
+        <div id="barcodeModal" class="modal">
+            <div class="modal-content modal-sm">
+                <div class="modal-header">
+                    <h2><i class="fas fa-barcode"></i> Barcode</h2>
+                    <button class="close-btn" onclick="closeBarcodeModal()">&times;</button>
+                </div>
+                <div class="barcode-preview" id="barcodePreview"></div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="printBarcode()">Print</button>
+                    <button class="btn btn-primary" onclick="downloadBarcode()">Download</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- Bulk Add Products Modal -->
+<div class="modal" id="bulkAddModal">
+    <div class="modal-content" style="max-width: 700px;">
+        <div class="modal-header">
+            <h2><i class="fas fa-layer-group"></i> Bulk Add Products</h2>
+            <button class="close-btn" onclick="closeBulkModal()">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+            <div class="bulk-info" style="background: #e0f2fe; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                <i class="fas fa-info-circle"></i>
+                <strong>Quick Add:</strong> Add multiple quantities of the same product in one go!
+            </div>
+
+            <form id="bulkForm" onsubmit="saveBulkProducts(event)">
+                <!-- Product Selection -->
+                <div class="form-group">
+                    <label>Select Product <span class="required">*</span></label>
+                    <select id="bulkProductId" required style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; width: 100%;">
+                        <option value="">-- Choose a product --</option>
+                        <!-- Products will be loaded here -->
+                    </select>
+                </div>
+
+                <!-- Supplier Selection -->
+                <div class="form-group">
+                    <label>Supplier <span class="required">*</span></label>
+                    <select id="bulkSupplierId" required style="padding: 0.75rem; border: 1px solid #e2e8f0; border-radius: 8px; width: 100%;">
+                        <option value="">-- Choose supplier --</option>
+                        <!-- Suppliers will be loaded here -->
+                    </select>
+                </div>
+
+                <!-- Batch Number Format -->
+                <div class="form-group">
+                    <label>Batch Number Format</label>
+                    <input type="text" id="batchFormat" value="BATCH-{DATE}-{SEQ}" placeholder="e.g., BATCH-{DATE}-{SEQ}">
+                    <small style="color: #64748b;">Use {DATE} for date, {SEQ} for sequence number</small>
+                </div>
+
+                <!-- Bulk Quantity Input -->
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Number of Batches <span class="required">*</span></label>
+                        <input type="number" id="batchCount" min="1" max="100" value="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Quantity per Batch <span class="required">*</span></label>
+                        <input type="number" id="qtyPerBatch" min="1" value="30" required>
+                    </div>
+                </div>
+
+                <!-- Expiry Dates -->
+                <div class="form-group">
+                    <label>Expiry Date Calculation</label>
+                    <select id="expiryType" onchange="toggleExpiryInput()">
+                        <option value="fixed">Same expiry for all</option>
+                        <option value="staggered">Staggered expiry (different dates)</option>
+                        <option value="months">Add months from today</option>
+                    </select>
+                </div>
+
+                <div id="fixedExpiryDiv">
+                    <div class="form-group">
+                        <label>Expiry Date</label>
+                        <input type="date" id="bulkExpiryDate">
+                    </div>
+                </div>
+
+                <div id="staggeredExpiryDiv" style="display: none;">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Start Date</label>
+                            <input type="date" id="startDate">
+                        </div>
+                        <div class="form-group">
+                            <label>End Date</label>
+                            <input type="date" id="endDate">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="monthsExpiryDiv" style="display: none;">
+                    <div class="form-group">
+                        <label>Months from today</label>
+                        <input type="number" id="monthsFromNow" min="1" value="3">
+                    </div>
+                </div>
+
+                <!-- Purchase Price -->
+                <div class="form-group">
+                    <label>Purchase Price (per unit) <span class="required">*</span></label>
+                    <input type="number" id="bulkPurchasePrice" step="0.01" min="0" required>
+                </div>
+
+                <!-- Preview Section -->
+                <div style="background: #f8fafc; padding: 1rem; border-radius: 8px; margin-top: 1rem;">
+                    <h4 style="margin-bottom: 1rem;">Preview: <span id="previewCount">30</span> items will be added</h4>
+                    <div style="max-height: 200px; overflow-y: auto;" id="previewList">
+                        <!-- Preview will show here -->
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="margin-top: 1rem;">
+                    <button type="button" class="btn-secondary" onclick="closeBulkModal()">Cancel</button>
+                    <button type="submit" class="btn-primary" id="bulkSaveBtn">
+                        <i class="fas fa-layer-group"></i> Add All Batches
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+    <script>
+        // =====================================================
+        // Global Variables
+        // =====================================================
+        let currentPage = 1;
+        let totalPages = 1;
+        let totalProducts = 0;
+        let categories = [];
+        let suppliers = [];
+        let selectedProducts = [];
+        let searchTimeout;
+
+        // =====================================================
+        // Initialize Page
+        // =====================================================
+        document.addEventListener('DOMContentLoaded', function() {
+            loadCategories();
+            loadSuppliers();
+            loadProducts();
+        });
+
+        // =====================================================
+        // API Calls
+        // =====================================================
+        async function loadProducts() {
+            try {
+                const search = document.getElementById('searchInput').value;
+                const category = document.getElementById('categoryFilter').value;
+                const status = document.getElementById('statusFilter').value;
+                const perPage = document.getElementById('perPageFilter').value;
+
+                let url = `/api/products?page=${currentPage}&per_page=${perPage}`;
+                if (search) url += `&search=${encodeURIComponent(search)}`;
+                if (category && category !== 'all') url += `&category=${encodeURIComponent(category)}`;
+                
+                if (status === 'active') url += `&active_only=true`;
+                else if (status === 'inactive') url += `&active_only=false`;
+                
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayProducts(data.items);
+                    totalProducts = data.total;
+                    totalPages = data.pages;
+                    document.getElementById('totalProducts').textContent = totalProducts;
+                    updatePagination();
+                } else {
+                    showError('Failed to load products');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Network error');
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                // Get unique categories from products
+                const response = await fetch('/api/products?per_page=1000');
+                const data = await response.json();
+                
+                const categoriesSet = new Set();
+                data.items.forEach(p => {
+                    if (p.category) categoriesSet.add(p.category);
+                });
+                
+                categories = Array.from(categoriesSet).sort();
+                
+                const categorySelects = document.querySelectorAll('#category, #categoryFilter');
+                categorySelects.forEach(select => {
+                    const currentValue = select.value;
+                    select.innerHTML = '<option value="">Select Category</option>';
+                    if (select.id === 'categoryFilter') {
+                        select.innerHTML = '<option value="all">All Categories</option>';
+                    }
+                    
+                    categories.forEach(cat => {
+                        const option = document.createElement('option');
+                        option.value = cat;
+                        option.textContent = cat;
+                        select.appendChild(option);
+                    });
+                    
+                    if (currentValue) select.value = currentValue;
+                });
+            } catch (error) {
+                console.error('Error loading categories:', error);
+            }
+        }
+
+        async function loadSuppliers() {
+            try {
+                const response = await fetch('/api/suppliers');
+                const data = await response.json();
+                suppliers = data;
+            } catch (error) {
+                console.error('Error loading suppliers:', error);
+            }
+        }
+
+        // =====================================================
+        // Display Functions
+        // =====================================================
+        function displayProducts(products) {
+            const tbody = document.getElementById('productsTableBody');
+            
+            if (!products || products.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="10" class="empty-row">
+                            <i class="fas fa-box-open"></i>
+                            <p>No products found</p>
+                            <button class="btn btn-primary" onclick="openAddProductModal()">
+                                Add Your First Product
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td><input type="checkbox" class="product-checkbox" value="${product.id}" onchange="updateSelected(${product.id})"></td>
+                    <td>
+                        <div class="product-image">
+                            ${product.primary_image_url ? 
+                                `<img src="${product.primary_image_url}" alt="${product.product_name}">` :
+                                `<i class="fas fa-box"></i>`
+                            }
+                        </div>
+                    </td>
+                    <td><span class="product-code">${product.product_code || '-'}</span></td>
+                    <td>
+                        <div class="barcode-cell">
+                            <span class="barcode-text">${product.barcode || '-'}</span>
+                            ${product.barcode ? 
+                                `<button class="btn-icon" onclick="showBarcode('${product.barcode}', '${product.product_name}')">
+                                    <i class="fas fa-qrcode"></i>
+                                </button>` : ''
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        <div class="product-name-cell">
+                            <strong>${product.product_name}</strong>
+                            ${product.brand ? `<br><small>${product.brand}</small>` : ''}
+                        </div>
+                    </td>
+                    <td>${product.category || '-'}</td>
+                    <td>
+                        <div class="price-info">
+                            <span class="selling-price">₹${product.selling_price}</span>
+                            <span class="cost-price">Cost: ₹${product.cost_price}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="stock-info">
+                            <span class="stock-count ${getStockClass(product.total_stock, product.min_stock_level)}">
+                                ${product.total_stock || 0}
+                            </span>
+                            ${product.expiring_soon ? 
+                                `<span class="expiry-badge">${product.expiring_soon} expiring</span>` : ''
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        <span class="status-badge ${product.is_active ? 'active' : 'inactive'}">
+                            ${product.is_active ? 'Active' : 'Inactive'}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <button class="btn-icon" onclick="viewProduct(${product.id})" title="View">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn-icon" onclick="editProduct(${product.id})" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn-icon" onclick="duplicateProduct(${product.id})" title="Duplicate">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                            <button class="btn-icon ${product.is_active ? 'delete' : 'restore'}" 
+                                    onclick="toggleProductStatus(${product.id}, ${product.is_active})" 
+                                    title="${product.is_active ? 'Deactivate' : 'Activate'}">
+                                <i class="fas ${product.is_active ? 'fa-trash' : 'fa-undo'}"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function getStockClass(stock, minLevel) {
+            if (stock === 0) return 'out-of-stock';
+            if (stock <= minLevel) return 'low-stock';
+            return 'in-stock';
+        }
+
+        // =====================================================
+        // Pagination
+        // =====================================================
+        function updatePagination() {
+            document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
+            
+            document.getElementById('firstPage').disabled = currentPage === 1;
+            document.getElementById('prevPage').disabled = currentPage === 1;
+            document.getElementById('nextPage').disabled = currentPage === totalPages;
+            document.getElementById('lastPage').disabled = currentPage === totalPages;
+        }
+
+        function changePage(page) {
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            loadProducts();
+        }
+
+        // =====================================================
+        // Search with Debounce
+        // =====================================================
+        function debounceSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                currentPage = 1;
+                loadProducts();
+            }, 500);
+        }
+
+        // =====================================================
+        // Product CRUD Operations
+        // =====================================================
+        function openAddProductModal() {
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Add New Product';
+            document.getElementById('productForm').reset();
+            document.getElementById('productId').value = '';
+            document.getElementById('productCode').value = '';
+            
+            // Reset tabs
+            switchTab('basic');
+            
+            // Load dynamic attributes
+            loadDynamicAttributes();
+            
+            // Load supplier mappings
+            loadSupplierMappings([]);
+            
+            document.getElementById('productModal').classList.add('active');
+        }
+
+        async function editProduct(id) {
+            try {
+                const response = await fetch(`/api/products/${id}`);
+                const product = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit Product';
+                    
+                    // Fill form fields
+                    document.getElementById('productId').value = product.id;
+                    document.getElementById('productName').value = product.product_name || '';
+                    document.getElementById('productCode').value = product.product_code || '';
+                    document.getElementById('barcode').value = product.barcode || '';
+                    document.getElementById('hsnCode').value = product.hsn_code || '';
+                    document.getElementById('description').value = product.description || '';
+                    document.getElementById('category').value = product.category || '';
+                    document.getElementById('subCategory').value = product.sub_category || '';
+                    document.getElementById('brand').value = product.brand || '';
+                    document.getElementById('unitType').value = product.unit_type || 'piece';
+                    document.getElementById('unitValue').value = product.unit_value || '';
+                    document.getElementById('weightKg').value = product.weight_kg || '';
+                    
+                    document.getElementById('costPrice').value = product.cost_price || '';
+                    document.getElementById('sellingPrice').value = product.selling_price || '';
+                    document.getElementById('mrp').value = product.mrp || '';
+                    document.getElementById('gstRate').value = product.gst_rate || '0';
+                    document.getElementById('minStockLevel').value = product.min_stock_level || 10;
+                    document.getElementById('maxStockLevel').value = product.max_stock_level || 1000;
+                    document.getElementById('reorderLevel').value = product.reorder_level || 50;
+                    document.getElementById('reorderQuantity').value = product.reorder_quantity || 100;
+                    
+                    document.getElementById('isPerishable').checked = product.is_perishable || false;
+                    document.getElementById('requiresRefrigeration').checked = product.requires_refrigeration || false;
+                    document.getElementById('discountAllowed').checked = product.discount_allowed !== false;
+                    
+                    if (product.shelf_life_days) {
+                        document.getElementById('shelfLifeDays').value = product.shelf_life_days;
+                        document.getElementById('expiryFields').style.display = 'block';
+                    }
+
+                    // Load attributes
+                    loadDynamicAttributes(product.attributes || []);
+                    
+                    // Load supplier mappings
+                    loadSupplierMappings(product.suppliers || []);
+
+                    toggleExpiryFields();
+                    document.getElementById('productModal').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to load product details');
+            }
+        }
+
+        async function viewProduct(id) {
+            try {
+                const response = await fetch(`/api/products/${id}`);
+                const product = await response.json();
+
+                if (response.ok) {
+                    const detailsHtml = `
+                        <div class="product-detail-header">
+                            <div class="product-detail-image">
+                                ${product.primary_image_url ? 
+                                    `<img src="${product.primary_image_url}" alt="${product.product_name}">` :
+                                    '<i class="fas fa-box fa-4x"></i>'
+                                }
+                            </div>
+                            <div class="product-detail-title">
+                                <h3>${product.product_name}</h3>
+                                <p>${product.product_code} | ${product.barcode || 'No barcode'}</p>
+                            </div>
+                        </div>
+
+                        <div class="product-detail-grid">
+                            <div class="detail-section">
+                                <h4>Basic Information</h4>
+                                <table class="detail-table">
+                                    <tr><th>Category:</th><td>${product.category || '-'}</td></tr>
+                                    <tr><th>Sub Category:</th><td>${product.sub_category || '-'}</td></tr>
+                                    <tr><th>Brand:</th><td>${product.brand || '-'}</td></tr>
+                                    <tr><th>HSN Code:</th><td>${product.hsn_code || '-'}</td></tr>
+                                    <tr><th>Description:</th><td>${product.description || '-'}</td></tr>
+                                </table>
+                            </div>
+
+                            <div class="detail-section">
+                                <h4>Pricing</h4>
+                                <table class="detail-table">
+                                    <tr><th>Cost Price:</th><td>₹${product.cost_price}</td></tr>
+                                    <tr><th>Selling Price:</th><td>₹${product.selling_price}</td></tr>
+                                    <tr><th>MRP:</th><td>₹${product.mrp || '-'}</td></tr>
+                                    <tr><th>GST Rate:</th><td>${product.gst_rate}%</td></tr>
+                                    <tr><th>Profit Margin:</th><td>₹${(product.selling_price - product.cost_price).toFixed(2)}</td></tr>
+                                </table>
+                            </div>
+
+                            <div class="detail-section">
+                                <h4>Stock Information</h4>
+                                <table class="detail-table">
+                                    <tr><th>Total Stock:</th><td>${product.total_stock || 0}</td></tr>
+                                    <tr><th>Min Level:</th><td>${product.min_stock_level}</td></tr>
+                                    <tr><th>Max Level:</th><td>${product.max_stock_level}</td></tr>
+                                    <tr><th>Reorder Level:</th><td>${product.reorder_level}</td></tr>
+                                    <tr><th>Status:</th><td><span class="status-badge ${product.is_active ? 'active' : 'inactive'}">${product.is_active ? 'Active' : 'Inactive'}</span></td></tr>
+                                </table>
+                            </div>
+
+                            <div class="detail-section">
+                                <h4>Batches</h4>
+                                <div class="batch-list">
+                                    ${product.batches && product.batches.length > 0 ? 
+                                        product.batches.map(batch => `
+                                            <div class="batch-item ${batch.status}">
+                                                <span class="batch-number">${batch.batch_number}</span>
+                                                <span class="batch-qty">${batch.remaining_quantity}/${batch.quantity}</span>
+                                                <span class="batch-expiry">Exp: ${batch.expiry_date}</span>
+                                            </div>
+                                        `).join('') :
+                                        '<p>No batches available</p>'
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="detail-section full-width">
+                                <h4>Suppliers</h4>
+                                <div class="supplier-badges">
+                                    ${product.suppliers && product.suppliers.length > 0 ?
+                                        product.suppliers.map(s => `
+                                            <span class="supplier-badge">
+                                                <i class="fas fa-truck"></i> ${s.name}
+                                                ${s.is_preferred ? '<i class="fas fa-star preferred"></i>' : ''}
+                                            </span>
+                                        `).join('') :
+                                        'No suppliers linked'
+                                    }
+                                </div>
+                            </div>
+
+                            ${product.attributes && product.attributes.length > 0 ? `
+                                <div class="detail-section full-width">
+                                    <h4>Attributes</h4>
+                                    <div class="attributes-grid">
+                                        ${product.attributes.map(attr => `
+                                            <div class="attribute-item">
+                                                <span class="attr-name">${attr.name}:</span>
+                                                <span class="attr-value">${attr.value}</span>
+                                            </div>
+                                        `).join('')}
+                                    </div>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        ${product.barcode ? `
+                            <div class="barcode-display">
+                                <img src="${product.barcode_image}" alt="Barcode">
+                                <p>${product.barcode}</p>
+                            </div>
+                        ` : ''}
+                    `;
+
+                    document.getElementById('productDetails').innerHTML = detailsHtml;
+                    document.getElementById('viewProductModal').classList.add('active');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Failed to load product details');
+            }
+        }
+
+        async function saveProduct(event) {
+            event.preventDefault();
+
+            const productId = document.getElementById('productId').value;
+            const isEdit = !!productId;
+
+            // Collect form data
+            const productData = {
+                product_name: document.getElementById('productName').value,
+                product_code: document.getElementById('productCode').value || undefined,
+                barcode: document.getElementById('barcode').value || undefined,
+                hsn_code: document.getElementById('hsnCode').value,
+                description: document.getElementById('description').value,
+                category: document.getElementById('category').value,
+                sub_category: document.getElementById('subCategory').value,
+                brand: document.getElementById('brand').value,
+                unit_type: document.getElementById('unitType').value,
+                unit_value: parseFloat(document.getElementById('unitValue').value) || null,
+                weight_kg: parseFloat(document.getElementById('weightKg').value) || null,
+                
+                cost_price: parseFloat(document.getElementById('costPrice').value),
+                selling_price: parseFloat(document.getElementById('sellingPrice').value),
+                mrp: parseFloat(document.getElementById('mrp').value) || null,
+                gst_rate: parseFloat(document.getElementById('gstRate').value),
+                
+                min_stock_level: parseInt(document.getElementById('minStockLevel').value),
+                max_stock_level: parseInt(document.getElementById('maxStockLevel').value),
+                reorder_level: parseInt(document.getElementById('reorderLevel').value),
+                reorder_quantity: parseInt(document.getElementById('reorderQuantity').value),
+                
+                is_perishable: document.getElementById('isPerishable').checked,
+                requires_refrigeration: document.getElementById('requiresRefrigeration').checked,
+                discount_allowed: document.getElementById('discountAllowed').checked,
+                
+                attributes: collectAttributes(),
+                suppliers: collectSupplierMappings()
+            };
+
+            if (productData.is_perishable) {
+                productData.shelf_life_days = parseInt(document.getElementById('shelfLifeDays').value);
+            }
+
+            try {
+                const url = isEdit ? `/api/products/${productId}` : '/api/products';
+                const method = isEdit ? 'PUT' : 'POST';
+
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(productData)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    showSuccess(isEdit ? 'Product updated successfully' : 'Product added successfully');
+                    closeModal();
+                    loadProducts();
+                } else {
+                    showError(result.error || 'Failed to save product');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Network error');
+            }
+        }
+
+        async function toggleProductStatus(id, isActive) {
+            const action = isActive ? 'deactivate' : 'activate';
+            
+            if (!confirm(`Are you sure you want to ${action} this product?`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/products/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    showSuccess(`Product ${action}d successfully`);
+                    loadProducts();
+                } else {
+                    const result = await response.json();
+                    showError(result.error || `Failed to ${action} product`);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Network error');
+            }
+        }
+
+        // =====================================================
+        // Attribute Management
+        // =====================================================
+        function loadDynamicAttributes(existingAttributes = []) {
+            const container = document.getElementById('dynamicAttributes');
+            
+            // Get category-specific attributes
+            const category = document.getElementById('category').value;
+            const categoryAttributes = categories.length > 0 ? 
+                categories.filter(c => c === category) : [];
+
+            let html = '';
+
+            // Add category-specific attributes
+            categoryAttributes.forEach(attr => {
+                const existing = existingAttributes.find(a => a.name === attr);
+                html += `
+                    <div class="attribute-row">
+                        <label>${attr.replace('_', ' ').toUpperCase()}</label>
+                        <input type="text" class="attribute-input" 
+                               data-attr="${attr}" 
+                               value="${existing ? existing.value : ''}"
+                               placeholder="Enter ${attr}">
+                    </div>
+                `;
+            });
+
+            // Add custom attributes from existing
+            existingAttributes.forEach(attr => {
+                if (!categoryAttributes.includes(attr.name)) {
+                    html += `
+                        <div class="attribute-row custom">
+                            <label>${attr.name}</label>
+                            <input type="text" class="attribute-input custom-attr" 
+                                   data-attr="${attr.name}" 
+                                   value="${attr.value}"
+                                   placeholder="Enter ${attr.name}">
+                            <button type="button" class="btn-icon" onclick="removeAttribute(this)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                       

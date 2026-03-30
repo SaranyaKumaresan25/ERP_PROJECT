@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Attendance - Profit Recovery ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #0f172a;
+            --dark-sidebar: #0c1a19;
+            --dark-sidebar-hover: #122e2b;
+            --dark-sidebar-active: #163d39;
+            --gray: #64748b;
+            --light-gray: #f1f5f9;
+            --border: #e2e8f0;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--light-gray); color: var(--dark); }
+        
+        .sidebar {
+            width: 280px;
+            background: var(--dark-sidebar);
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+        .sidebar-brand { padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-brand h2 { color: white; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .sidebar-brand h2 i { color: var(--primary); }
+        .sidebar-brand p { color: rgba(255,255,255,0.5); font-size: 0.7rem; margin-top: 0.25rem; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 0.25rem; padding: 1rem; }
+        .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; font-size: 0.9rem; }
+        .nav-item i { width: 20px; }
+        .nav-item:hover { background: var(--dark-sidebar-hover); color: white; }
+        .nav-item.active { background: var(--dark-sidebar-active); color: white; border-left: 3px solid var(--primary); }
+        .sidebar-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); background: var(--dark-sidebar); }
+        .user-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+        .user-avatar { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; }
+        .user-name { font-weight: 600; color: white; font-size: 0.9rem; }
+        .user-role { font-size: 0.7rem; opacity: 0.6; color: rgba(255,255,255,0.6); }
+        .logout-btn { width: 100%; padding: 0.75rem; background: rgba(239,68,68,0.2); border: none; border-radius: 8px; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        
+        .main-content { margin-left: 280px; padding: 2rem; min-height: 100vh; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .page-title h1 { font-size: 1.75rem; font-weight: 700; }
+        .page-title p { color: var(--gray); font-size: 0.85rem; margin-top: 0.25rem; }
+        .date-badge { background: var(--white); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; color: var(--gray); border: 1px solid var(--border); }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .stat-card h3 { font-size: 0.75rem; color: var(--gray); margin-bottom: 0.5rem; }
+        .stat-number { font-size: 2rem; font-weight: 700; color: var(--dark); }
+        
+        .filters-bar {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .filters-bar select, .filters-bar input {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            background: var(--primary);
+            color: white;
+        }
+        
+        .data-table-container {
+            background: var(--white);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .data-table th {
+            text-align: left;
+            padding: 1rem;
+            background: var(--light-gray);
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--gray);
+            border-bottom: 1px solid var(--border);
+        }
+        .data-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-present { background: #dcfce7; color: #166534; }
+        .status-absent { background: #fee2e2; color: #991b1b; }
+        .status-late { background: #fef3c7; color: #92400e; }
+        
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+        .toast {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--success);
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand"><h2><i class="fas fa-chart-line"></i> Profit Recovery ERP</h2><p>Employee Self Service</p></div>
+        <div class="sidebar-nav">
+            <a href="/employee/profile" class="nav-item"><i class="fas fa-user-circle"></i><span>My Profile</span></a>
+            <a href="/employee/attendance" class="nav-item active"><i class="fas fa-calendar-check"></i><span>My Attendance</span></a>
+            <a href="/employee/leaves" class="nav-item"><i class="fas fa-umbrella-beach"></i><span>My Leaves</span></a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Employee</div>
+                    <div class="user-role" id="userRole">Employee</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>My Attendance</h1>
+                <p>View your daily attendance records</p>
+            </div>
+            <div class="date-badge" id="currentDate"></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card"><h3>Present Days</h3><div class="stat-number" id="presentDays">0</div></div>
+            <div class="stat-card"><h3>Absent Days</h3><div class="stat-number" id="absentDays">0</div></div>
+            <div class="stat-card"><h3>Late Days</h3><div class="stat-number" id="lateDays">0</div></div>
+            <div class="stat-card"><h3>Attendance Rate</h3><div class="stat-number" id="attRate">0%</div></div>
+        </div>
+
+        <div class="filters-bar">
+            <select id="monthFilter">
+                <option value="1">January</option><option value="2">February</option><option value="3" selected>March</option>
+                <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+                <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+                <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+            </select>
+            <select id="yearFilter"></select>
+            <button class="btn" onclick="loadAttendance()">Search</button>
+        </div>
+
+        <div class="data-table-container">
+            <table class="data-table">
+                <thead>
+                    <tr><th>Date</th><th>Check In</th><th>Check Out</th><th>Work Hours</th><th>Status</th></tr>
+                </thead>
+                <tbody id="attendanceTable">
+                    <tr><td colspan="5" style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let currentYear = new Date().getFullYear();
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function checkAuth() {
+            const response = await fetch('/api/check-auth');
+            const data = await response.json();
+            if (!data.authenticated) window.location.href = '/login';
+            document.getElementById('userName').textContent = data.user.full_name;
+            document.getElementById('userAvatar').textContent = data.user.full_name.charAt(0);
+            document.getElementById('userRole').textContent = data.user.role.replace('_', ' ').toUpperCase();
+        }
+
+       async function loadAttendance() {
+    const month = document.getElementById('monthFilter').value;
+    const year = document.getElementById('yearFilter').value;
+    
+    try {
+        // FIX: Send month and year to backend
+        let url = `/api/employee/attendance/recent?limit=100`;
+        if (month && year) {
+            url += `&month=${month}&year=${year}`;
+        }
+        
+        const response = await fetch(url);
+        
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const records = await response.json();
+        
+        const tbody = document.getElementById('attendanceTable');
+        
+        // No need to filter again, backend already filtered
+        if (!records || records.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray);">No attendance records found</td></tr>';
+            document.getElementById('presentDays').textContent = '0';
+            document.getElementById('absentDays').textContent = '0';
+            document.getElementById('lateDays').textContent = '0';
+            document.getElementById('attRate').textContent = '0%';
+            return;
+        }
+        
+        let present = 0, absent = 0, late = 0;
+        
+        tbody.innerHTML = records.map(rec => {
+            if (rec.status === 'present') present++;
+            else if (rec.status === 'absent') absent++;
+            else if (rec.status === 'late') late++;
+            
+            let statusClass = rec.status === 'present' ? 'status-present' : 
+                             rec.status === 'absent' ? 'status-absent' : 'status-late';
+            let statusText = rec.status ? rec.status.toUpperCase() : '-';
+            
+            // Format times
+            let checkIn = '-';
+            let checkOut = '-';
+            
+            if (rec.check_in_time) {
+                const date = new Date(rec.check_in_time);
+                checkIn = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+            
+            if (rec.check_out_time) {
+                const date = new Date(rec.check_out_time);
+                checkOut = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            }
+            
+            return `
+                <tr>
+                    <td>${rec.date || '-'}</td>
+                    <td>${checkIn}</td>
+                    <td>${checkOut}</td>
+                    <td>${rec.work_hours || 0} hrs</td>
+                    <td><span class="status-badge ${statusClass}">${statusText}</span></td>
+                </tr>
+            `;
+        }).join('');
+        
+        const total = records.length;
+        const attRate = total > 0 ? (present / total * 100).toFixed(1) : 0;
+        document.getElementById('presentDays').textContent = present;
+        document.getElementById('absentDays').textContent = absent;
+        document.getElementById('lateDays').textContent = late;
+        document.getElementById('attRate').textContent = `${attRate}%`;
+        
+    } catch (error) {
+        console.error("Error loading attendance:", error);
+        document.getElementById('attendanceTable').innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--danger);">Failed to load attendance</td></tr>';
+        showToast('Failed to load attendance', 'error');
+    }
+}
+
+        function initYearFilter() {
+            const yearSelect = document.getElementById('yearFilter');
+            for (let i = currentYear - 2; i <= currentYear; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (i === currentYear) option.selected = true;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/login';
+        }
+
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+        
+        initYearFilter();
+        checkAuth();
+        loadAttendance();
+        
+        document.getElementById('monthFilter').addEventListener('change', loadAttendance);
+        document.getElementById('yearFilter').addEventListener('change', loadAttendance);
+    </script>
+</body>
+</html>

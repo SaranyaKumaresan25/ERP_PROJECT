@@ -1,0 +1,1491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>User Management - Profit Recovery ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    :root {
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --primary-light: #dbeafe;
+        --success: #10b981;
+        --success-light: #dcfce7;
+        --warning: #f59e0b;
+        --warning-light: #fef3c7;
+        --danger: #ef4444;
+        --danger-light: #fee2e2;
+        --info: #3b82f6;
+        --info-light: #dbeafe;
+        --dark: #0f172a;
+        --dark-sidebar: #0c1a19;
+        --dark-sidebar-hover: #122e2b;
+        --dark-sidebar-active: #163d39;
+        --gray: #64748b;
+        --gray-light: #94a3b8;
+        --light-gray: #f1f5f9;
+        --border: #e2e8f0;
+        --white: #ffffff;
+        --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+        --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    }
+    
+    body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        background: var(--light-gray);
+        color: var(--dark);
+        line-height: 1.5;
+    }
+    
+    /* =====================================================
+       SIDEBAR (Dark Theme - Matches Dashboard)
+       ===================================================== */
+    
+    .sidebar {
+        width: 280px;
+        background: var(--dark-sidebar);
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        z-index: 100;
+        transition: all 0.3s;
+        overflow-y: auto;
+    }
+    
+    .sidebar-brand {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 1rem;
+    }
+    
+    .sidebar-brand h2 {
+        color: white;
+        font-size: 1.25rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .sidebar-brand h2 i {
+        color: var(--primary);
+    }
+    
+    .sidebar-brand p {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 0.7rem;
+        margin-top: 0.25rem;
+    }
+    
+    .sidebar-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        padding: 0 1rem 1rem;
+    }
+    
+    .nav-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 0.75rem 1rem;
+        color: rgba(255, 255, 255, 0.7);
+        text-decoration: none;
+        border-radius: 8px;
+        transition: all 0.2s;
+        font-size: 0.9rem;
+    }
+    
+    .nav-item i {
+        width: 20px;
+        font-size: 1rem;
+    }
+    
+    .nav-item:hover {
+        background: var(--dark-sidebar-hover);
+        color: white;
+    }
+    
+    .nav-item.active {
+        background: var(--dark-sidebar-active);
+        color: white;
+        border-left: 3px solid var(--primary);
+    }
+    
+    .sidebar-footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 1.5rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        background: var(--dark-sidebar);
+    }
+    
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: rgba(255, 255, 255, 0.7);
+        margin-bottom: 1rem;
+    }
+    
+    .user-avatar {
+        width: 40px;
+        height: 40px;
+        background: var(--primary);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: white;
+        font-size: 1rem;
+    }
+    
+    .user-details {
+        flex: 1;
+    }
+    
+    .user-name {
+        font-weight: 600;
+        color: white;
+        font-size: 0.9rem;
+    }
+    
+    .user-role {
+        font-size: 0.7rem;
+        opacity: 0.6;
+        color: rgba(255, 255, 255, 0.6);
+    }
+    
+    .logout-btn {
+        width: 100%;
+        padding: 0.75rem;
+        background: rgba(239, 68, 68, 0.2);
+        border: none;
+        border-radius: 8px;
+        color: #ef4444;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+    
+    .logout-btn:hover {
+        background: rgba(239, 68, 68, 0.3);
+    }
+    
+    /* =====================================================
+       MAIN CONTENT
+       ===================================================== */
+    
+    .main-content {
+        margin-left: 280px;
+        padding: 2rem;
+        min-height: 100vh;
+    }
+    
+    /* =====================================================
+       TOP BAR
+       ===================================================== */
+    
+    .top-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .page-title h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--dark);
+        letter-spacing: -0.3px;
+    }
+    
+    .page-title p {
+        color: var(--gray);
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+    
+    .date-badge {
+        background: var(--white);
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        color: var(--gray);
+        box-shadow: var(--shadow-sm);
+        border: 1px solid var(--border);
+    }
+    
+    /* =====================================================
+       BUTTONS
+       ===================================================== */
+    
+    .quick-btn {
+        padding: 0.6rem 1.2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all 0.2s;
+    }
+    
+    .quick-btn.primary {
+        background: var(--primary);
+        color: white;
+    }
+    
+    .quick-btn.primary:hover {
+        background: var(--primary-dark);
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-md);
+    }
+    
+    /* =====================================================
+       SEARCH BAR
+       ===================================================== */
+    
+    .search-bar {
+        margin-bottom: 1.5rem;
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    
+    .search-input {
+        flex: 1;
+        max-width: 300px;
+        padding: 0.6rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        background: var(--white);
+        transition: all 0.2s;
+    }
+    
+    .search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .filter-group {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .status-filter {
+        padding: 0.6rem 1rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.9rem;
+        background: var(--white);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .status-filter:focus {
+        outline: none;
+        border-color: var(--primary);
+    }
+    
+    /* =====================================================
+       USER COUNT
+       ===================================================== */
+    
+    .user-count {
+        margin-bottom: 1rem;
+        font-size: 0.85rem;
+        color: var(--gray);
+    }
+    
+    /* =====================================================
+       USERS TABLE
+       ===================================================== */
+    
+    .users-table-container {
+        background: var(--white);
+        border-radius: 16px;
+        border: 1px solid var(--border);
+        overflow-x: auto;
+        box-shadow: var(--shadow-sm);
+    }
+    
+    .users-table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 800px;
+    }
+    
+    .users-table th {
+        text-align: left;
+        padding: 1rem;
+        background: var(--light-gray);
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: var(--gray);
+        border-bottom: 1px solid var(--border);
+    }
+    
+    .users-table td {
+        padding: 1rem;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.85rem;
+    }
+    
+    .users-table tr:hover {
+        background: var(--light-gray);
+    }
+    
+    /* =====================================================
+       BADGES
+       ===================================================== */
+    
+   /* =====================================================
+   BADGES
+   ===================================================== */
+
+.role-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.role-badge.admin {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+.role-badge.inventory_manager {
+    background: #dbeafe;
+    color: #2563eb;
+}
+
+.role-badge.sales_staff {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.role-badge.hr_manager {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.role-badge.employee {
+    background: #e0e7ff;
+    color: #4338ca;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.status-badge.active {
+    background: #dcfce7;
+    color: #16a34a;
+}
+
+.status-badge.inactive {
+    background: #fee2e2;
+    color: #dc2626;
+}
+    
+    /* =====================================================
+       ACTION BUTTONS
+       ===================================================== */
+    
+    .action-btns {
+        display: flex;
+        gap: 0.5rem;
+    }
+    
+    .action-btn {
+        background: none;
+        border: none;
+        padding: 0.5rem;
+        border-radius: 6px;
+        cursor: pointer;
+        color: var(--gray);
+        transition: all 0.2s;
+        font-size: 1rem;
+    }
+    
+    .action-btn:hover {
+        background: var(--light-gray);
+        color: var(--primary);
+    }
+    
+    .action-btn.delete:hover {
+        color: var(--danger);
+        background: var(--danger-light);
+    }
+    
+    .action-btn.activate:hover {
+        color: var(--success);
+        background: var(--success-light);
+    }
+    
+    /* =====================================================
+       PAGINATION
+       ===================================================== */
+    
+    .pagination-controls {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 2rem;
+        padding: 1rem;
+        flex-wrap: wrap;
+    }
+    
+    .pagination-controls button {
+        padding: 0.5rem 1rem;
+        background: var(--white);
+        color: var(--dark-gray);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-size: 0.85rem;
+    }
+    
+    .pagination-controls button:hover:not(:disabled) {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        transform: translateY(-1px);
+    }
+    
+    .pagination-controls button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .page-numbers {
+        display: flex;
+        gap: 0.25rem;
+    }
+    
+    .page-numbers button.active-page {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+    }
+    
+    /* =====================================================
+       MODAL
+       ===================================================== */
+    
+    .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+        backdrop-filter: blur(4px);
+    }
+    
+    .modal.active {
+        display: flex;
+    }
+    
+    .modal-content {
+        background: var(--white);
+        border-radius: 16px;
+        width: 90%;
+        max-width: 500px;
+        max-height: 90vh;
+        overflow-y: auto;
+        animation: modalSlideIn 0.3s ease;
+        box-shadow: var(--shadow-xl);
+    }
+    
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .modal-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: sticky;
+        top: 0;
+        background: var(--white);
+        z-index: 10;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--dark);
+    }
+    
+    .close-btn {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        cursor: pointer;
+        color: var(--gray);
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+    
+    .close-btn:hover {
+        background: var(--light-gray);
+        color: var(--danger);
+    }
+    
+    .modal-body {
+        padding: 1.5rem;
+    }
+    
+    .modal-footer {
+        padding: 1.5rem;
+        border-top: 1px solid var(--border);
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        position: sticky;
+        bottom: 0;
+        background: var(--white);
+    }
+    
+    /* =====================================================
+       FORM STYLES
+       ===================================================== */
+    
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        font-size: 0.85rem;
+        color: var(--dark);
+    }
+    
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-family: 'Inter', sans-serif;
+        transition: all 0.2s;
+        background: var(--white);
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    
+    .form-group input[readonly] {
+        background: var(--light-gray);
+        cursor: not-allowed;
+    }
+    
+    .form-group small {
+        display: block;
+        margin-top: 0.25rem;
+        color: var(--gray);
+        font-size: 0.7rem;
+    }
+    
+    /* Checkbox Group */
+    .checkbox-group {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+    }
+    
+    .checkbox-group input {
+        width: auto;
+    }
+    
+    /* =====================================================
+       TOAST NOTIFICATIONS
+       ===================================================== */
+    
+    .toast-container {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1100;
+    }
+    
+    .toast {
+        background: var(--white);
+        border-radius: 8px;
+        padding: 1rem 1.5rem;
+        margin-bottom: 0.5rem;
+        box-shadow: var(--shadow-lg);
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        animation: slideIn 0.3s ease;
+        border-left: 4px solid var(--success);
+    }
+    
+    .toast.success {
+        border-left-color: var(--success);
+    }
+    
+    .toast.error {
+        border-left-color: var(--danger);
+    }
+    
+    .toast.warning {
+        border-left-color: var(--warning);
+    }
+    
+    .toast.info {
+        border-left-color: var(--info);
+    }
+    
+    @keyframes slideIn {
+        from {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+        to {
+            transform: translateX(0);
+            opacity: 1;
+        }
+    }
+    
+    /* =====================================================
+       LOADING STATES
+       ===================================================== */
+    
+    .loading-spinner {
+        display: inline-block;
+        animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+    
+    /* =====================================================
+       RESPONSIVE DESIGN
+       ===================================================== */
+    
+    @media (max-width: 1024px) {
+        .sidebar {
+            transform: translateX(-100%);
+            z-index: 1000;
+        }
+        
+        .sidebar.open {
+            transform: translateX(0);
+        }
+        
+        .main-content {
+            margin-left: 0;
+        }
+        
+        .top-bar {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .main-content {
+            padding: 1rem;
+        }
+        
+        .search-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .search-input {
+            max-width: 100%;
+        }
+        
+        .filter-group {
+            width: 100%;
+        }
+        
+        .status-filter {
+            flex: 1;
+        }
+        
+        .modal-content {
+            width: 95%;
+            margin: 1rem;
+        }
+        
+        .action-btns {
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+    }
+    
+    /* =====================================================
+       SCROLLBAR STYLING
+       ===================================================== */
+    
+    ::-webkit-scrollbar {
+        width: 8px;
+        height: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: var(--light-gray);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: var(--gray-light);
+        border-radius: 4px;
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: var(--gray);
+    }
+    
+    /* =====================================================
+       PRINT STYLES
+       ===================================================== */
+    
+    @media print {
+        .sidebar,
+        .logout-btn,
+        .action-btns,
+        .search-bar {
+            display: none;
+        }
+        
+        .main-content {
+            margin-left: 0;
+            padding: 0;
+        }
+        
+        .users-table-container {
+            box-shadow: none;
+            border: 1px solid #ddd;
+        }
+    }
+</style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>
+                <i class="fas fa-chart-line"></i>
+                Profit Recovery ERP
+            </h2>
+            <p>Enterprise Resource Planning</p>
+        </div>
+        
+        <div class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/admin/users" class="nav-item active">
+                <i class="fas fa-users"></i>
+                <span>User Management</span>
+            </a>
+            <a href="/inventory/dashboard" class="nav-item">
+                <i class="fas fa-box"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="/sales/pos" class="nav-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>POS Scanner</span>
+            </a>
+                <a href="/hr/dashboard" class="nav-item">
+        <i class="fas fa-user-tie"></i>
+        <span>HR Management</span>
+    </a>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Admin User</div>
+                    <div class="user-role" id="userRole">Administrator</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Sign Out
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>User Management</h1>
+                <p>Manage system users and their permissions</p>
+            </div>
+            <button class="quick-btn primary" onclick="showAddUserModal()">
+                <i class="fas fa-plus"></i> Add New User
+            </button>
+        </div>
+
+        <!-- Search and Filter Bar -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" class="search-input" 
+                   placeholder="Search by username, name, or email..." 
+                   onkeyup="debounceSearch()">
+            <div class="filter-group">
+                <select id="statusFilter" class="status-filter" onchange="filterByStatus()">
+                    <option value="active">✅ Active Users</option>
+                    <option value="inactive">⭕ Inactive Users</option>
+                    <option value="all">👥 All Users</option>
+                </select>
+            </div>
+         
+        </div>
+
+        <!-- User Count -->
+        <div class="user-count">
+            <i class="fas fa-users"></i> Total Users: <span id="userCount">0</span>
+        </div>
+
+        <!-- Users Table -->
+        <div class="users-table-container">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Full Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Status</th>
+                        <th>Last Login</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="usersTableBody">
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-spinner fa-spin"></i> Loading users...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Pagination Controls -->
+        <div id="paginationControls"></div>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div class="modal" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">
+                    <i class="fas fa-user-plus"></i>
+                    Add New User
+                </h2>
+                <button class="close-btn" onclick="closeUserModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="userForm">
+                    <input type="hidden" id="userId">
+                    
+                    <div class="form-group">
+                        <label>Username *</label>
+                        <input type="text" id="username" required placeholder="e.g., john_doe">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="fullName" required placeholder="e.g., John Doe">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Email *</label>
+                        <input type="email" id="email" required placeholder="john@example.com">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Password</label>
+                        <input type="password" id="password" placeholder="Leave blank to keep current">
+                        <small style="color: var(--gray);">For new users, password is required</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Role *</label>
+                        <select id="role" required>
+                            <option value="admin">Administrator</option>
+                            <option value="inventory_manager">Inventory Manager</option>
+                            <option value="sales_staff">Sales Staff</option>
+                            <option value="hr_manager">HR Manager</option>      <!-- ADD THIS -->
+                            <option value="employee">Employee</option>  
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Department</label>
+                        <input type="text" id="department" placeholder="e.g., IT, Sales, Warehouse">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Phone</label>
+                        <input type="tel" id="phone" placeholder="e.g., 9876543210">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" id="isActive" checked> Active Account
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="quick-btn" onclick="closeUserModal()" style="background: var(--gray); color: white;">Cancel</button>
+                <button class="quick-btn primary" onclick="saveUser()">Save User</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentSearch = '';
+        let currentStatus = 'active';
+        let searchTimeout = null;
+        
+        // Global fetch wrapper to handle 401 errors
+        const originalFetch = window.fetch;
+        window.fetch = function(...args) {
+            return originalFetch.apply(this, args).then(response => {
+                if (response.status === 401) {
+                    console.log('Received 401 Unauthorized, redirecting to login...');
+                    window.location.replace('/login');
+                    return Promise.reject(new Error('Authentication required'));
+                }
+                return response;
+            });
+        };
+        
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${escapeHtml(message)}</span>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+        
+        async function checkAuth() {
+            try {
+                const response = await fetch('/api/check-auth');
+                const data = await response.json();
+                
+                if (!data.authenticated || data.user.role !== 'admin') {
+                    window.location.replace('/login');
+                    return false;
+                }
+                
+                document.getElementById('userName').textContent = data.user.full_name;
+                document.getElementById('userAvatar').textContent = data.user.full_name.charAt(0);
+                document.getElementById('userRole').textContent = data.user.role.replace('_', ' ').toUpperCase();
+                
+                return true;
+            } catch (error) {
+                console.error('Auth check error:', error);
+                window.location.replace('/login');
+                return false;
+            }
+        }
+        
+        async function loadUsers(page = 1) {
+            try {
+                const tbody = document.getElementById('usersTableBody');
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2rem;">
+                            <i class="fas fa-spinner fa-spin"></i> Loading users...
+                        </td>
+                    </tr>
+                `;
+                
+                // Build URL with all parameters
+                let url = `/api/users?page=${page}&per_page=20&status=${currentStatus}`;
+                if (currentSearch) {
+                    url += `&search=${encodeURIComponent(currentSearch)}`;
+                }
+                
+                const response = await fetch(url);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load users');
+                }
+                
+                const data = await response.json();
+                
+                // Handle paginated response
+                const users = data.items || [];
+                const total = data.total || users.length;
+                const currentPageNum = data.page || page;
+                const totalPagesNum = data.pages || Math.ceil(total / 20);
+                
+                // Update user count
+                document.getElementById('userCount').textContent = total;
+                
+                if (!users || users.length === 0) {
+                    let message = 'No users found';
+                    if (currentStatus === 'active') message = 'No active users found';
+                    if (currentStatus === 'inactive') message = 'No inactive users found';
+                    if (currentSearch) message = `No users found matching "${currentSearch}"`;
+                    
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="8" style="text-align: center; padding: 2rem; color: var(--gray);">
+                                <i class="fas fa-users"></i>
+                                <p style="margin-top: 0.5rem;">${message}</p>
+                             </td>
+                        </tr>
+                    `;
+                    document.getElementById('paginationControls').innerHTML = '';
+                    return;
+                }
+                
+                // Build table rows
+                tbody.innerHTML = users.map(user => {
+                    const isActive = user.is_active;
+                    const lastLogin = user.last_login ? new Date(user.last_login).toLocaleString() : 'Never';
+                    
+                    // Role badge styling
+                    let roleClass = '';
+                    let roleDisplay = user.role.replace('_', ' ');
+                    if (user.role === 'admin') roleClass = 'admin';
+                    else if (user.role === 'inventory_manager') roleClass = 'inventory_manager';
+                    else if (user.role === 'sales_staff') roleClass = 'sales_staff';
+                    else if (user.role === 'hr_manager') roleClass = 'hr_manager';  // ADD THIS
+                    else if (user.role === 'employee') roleClass = 'employee';  
+                    
+                    return `
+                        <tr>
+                            <td>${user.id}</td>
+                            <td>
+                                <strong>${escapeHtml(user.username)}</strong>
+                                ${user.id === 1 ? '<span style="font-size: 0.7rem; color: var(--primary); margin-left: 5px;">(System)</span>' : ''}
+                            </td>
+                            <td>${escapeHtml(user.full_name || '-')}</td>
+                            <td>${escapeHtml(user.email)}</td>
+                            <td>
+                                <span class="role-badge ${roleClass}">${roleDisplay}</span>
+                            </td>
+                            <td>
+                                <span class="status-badge ${isActive ? 'active' : 'inactive'}">
+                                    ${isActive ? 'Active' : 'Inactive'}
+                                </span>
+                            </td>
+                            <td>${lastLogin}</td>
+                            <td>
+                                <div class="action-btns">
+                                    <button class="action-btn" onclick="editUser(${user.id})" title="Edit User">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    ${isActive ? 
+                                        `<button class="action-btn delete" onclick="toggleUserStatus(${user.id}, true)" title="Deactivate User">
+                                            <i class="fas fa-ban"></i>
+                                        </button>` : 
+                                        `<button class="action-btn activate" onclick="toggleUserStatus(${user.id}, false)" title="Activate User">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>`
+                                    }
+                                    ${user.id !== 1 ? 
+                                        `<button class="action-btn" onclick="resetUserPassword(${user.id})" title="Reset Password" style="color: var(--warning);">
+                                            <i class="fas fa-key"></i>
+                                        </button>` : ''
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                currentPage = currentPageNum;
+                totalPages = totalPagesNum;
+                updatePaginationControls();
+                
+            } catch (error) {
+                console.error('Failed to load users:', error);
+                document.getElementById('usersTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align: center; padding: 2rem; color: var(--danger);">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <p style="margin-top: 0.5rem;">Failed to load users: ${error.message}</p>
+                            <button onclick="loadUsers(1)" style="margin-top: 1rem; padding: 0.5rem 1rem; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer;">
+                                <i class="fas fa-sync-alt"></i> Retry
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        function updatePaginationControls() {
+            let paginationDiv = document.getElementById('paginationControls');
+            if (!paginationDiv) return;
+            
+            if (totalPages <= 1) {
+                paginationDiv.innerHTML = '';
+                return;
+            }
+            
+            // Calculate visible page numbers
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            
+            let pageButtons = '';
+            for (let i = startPage; i <= endPage; i++) {
+                pageButtons += `
+                    <button onclick="loadUsers(${i})" class="${i === currentPage ? 'active-page' : ''}">
+                        ${i}
+                    </button>
+                `;
+            }
+            
+            paginationDiv.innerHTML = `
+                <div class="pagination-controls">
+                    <button onclick="loadUsers(1)" ${currentPage <= 1 ? 'disabled' : ''} title="First Page">
+                        <i class="fas fa-angle-double-left"></i>
+                    </button>
+                    <button onclick="loadUsers(${currentPage - 1})" ${currentPage <= 1 ? 'disabled' : ''} title="Previous Page">
+                        <i class="fas fa-chevron-left"></i> Prev
+                    </button>
+                    <div class="page-numbers">
+                        ${pageButtons}
+                    </div>
+                    <button onclick="loadUsers(${currentPage + 1})" ${currentPage >= totalPages ? 'disabled' : ''} title="Next Page">
+                        Next <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <button onclick="loadUsers(${totalPages})" ${currentPage >= totalPages ? 'disabled' : ''} title="Last Page">
+                        <i class="fas fa-angle-double-right"></i>
+                    </button>
+                    <span style="margin-left: 1rem; font-size: 0.85rem; color: var(--gray);">
+                        Page ${currentPage} of ${totalPages}
+                    </span>
+                </div>
+            `;
+        }
+        
+        function debounceSearch() {
+            if (searchTimeout) clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                currentSearch = document.getElementById('searchInput').value;
+                loadUsers(1);
+            }, 500);
+        }
+        
+        function filterByStatus() {
+            currentStatus = document.getElementById('statusFilter').value;
+            currentSearch = document.getElementById('searchInput').value;
+            loadUsers(1);
+        }
+        
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            currentSearch = '';
+            loadUsers(1);
+        }
+        
+        function showAddUserModal() {
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-user-plus"></i> Add New User';
+            document.getElementById('userForm').reset();
+            document.getElementById('userId').value = '';
+            document.getElementById('isActive').checked = true;
+            document.getElementById('userModal').classList.add('active');
+        }
+        
+        async function editUser(id) {
+            try {
+                const response = await fetch(`/api/users?page=1&per_page=1000&status=all`);
+                const data = await response.json();
+                const users = data.items || data;
+                const user = users.find(u => u.id === id);
+                
+                if (!user) {
+                    showToast('User not found', 'error');
+                    return;
+                }
+                
+                document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Edit User';
+                document.getElementById('userId').value = user.id;
+                document.getElementById('username').value = user.username;
+                document.getElementById('fullName').value = user.full_name;
+                document.getElementById('email').value = user.email;
+                document.getElementById('role').value = user.role;
+                document.getElementById('department').value = user.department || '';
+                document.getElementById('phone').value = user.phone || '';
+                document.getElementById('isActive').checked = user.is_active;
+                document.getElementById('password').value = '';
+                document.getElementById('userModal').classList.add('active');
+                
+            } catch (error) {
+                showToast('Failed to load user', 'error');
+            }
+        }
+        
+        async function saveUser() {
+            const userId = document.getElementById('userId').value;
+            const userData = {
+                username: document.getElementById('username').value.trim(),
+                full_name: document.getElementById('fullName').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                role: document.getElementById('role').value,
+                department: document.getElementById('department').value,
+                phone: document.getElementById('phone').value,
+                is_active: document.getElementById('isActive').checked
+            };
+            
+            const password = document.getElementById('password').value;
+            if (password) {
+                userData.password = password;
+            }
+            
+            if (!userData.username || !userData.full_name || !userData.email) {
+                showToast('Please fill all required fields', 'error');
+                return;
+            }
+            
+            if (!userId && !password) {
+                showToast('Password is required for new users', 'error');
+                return;
+            }
+            
+            const url = userId ? `/api/users/${userId}` : '/api/users';
+            const method = userId ? 'PUT' : 'POST';
+            
+            try {
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+                
+                if (response.ok) {
+                    showToast(userId ? 'User updated successfully' : 'User added successfully', 'success');
+                    closeUserModal();
+                    loadUsers(currentPage);
+                } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to save user', 'error');
+                }
+            } catch (error) {
+                showToast('Network error', 'error');
+            }
+        }
+        
+        async function toggleUserStatus(id, isCurrentlyActive) {
+            const action = isCurrentlyActive ? 'deactivate' : 'activate';
+            
+            // Different confirmation messages based on action
+            let confirmMessage = '';
+            if (isCurrentlyActive) {
+                confirmMessage = `⚠️ WARNING: Are you sure you want to DEACTIVATE this user?\n\nDeactivated users cannot log in until reactivated.`;
+            } else {
+                confirmMessage = `✅ Are you sure you want to ACTIVATE this user?\n\nThis user will be able to log in again.`;
+            }
+            
+            if (!confirm(confirmMessage)) return;
+            
+            try {
+                let url = `/api/users/${id}`;
+                let method = 'DELETE';
+                
+                // If we're activating, use the activate endpoint
+                if (!isCurrentlyActive) {
+                    url = `/api/users/${id}/activate`;
+                    method = 'POST';
+                }
+                
+                const response = await fetch(url, { 
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showToast(data.message || `User ${action}d successfully`, 'success');
+                    loadUsers(currentPage);
+                } else {
+                    const error = await response.json();
+                    showToast(error.error || `Failed to ${action} user`, 'error');
+                }
+            } catch (error) {
+                console.error('Error toggling user status:', error);
+                showToast('Network error', 'error');
+            }
+        }
+        
+        async function resetUserPassword(userId) {
+            const newPassword = prompt('Enter new password for this user:', 'admin123');
+            if (!newPassword) return;
+            
+            if (newPassword.length < 6) {
+                showToast('Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/users/${userId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ password: newPassword })
+                });
+                
+                if (response.ok) {
+                    showToast('Password reset successfully', 'success');
+                } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to reset password', 'error');
+                }
+            } catch (error) {
+                showToast('Network error', 'error');
+            }
+        }
+        
+        function closeUserModal() {
+            document.getElementById('userModal').classList.remove('active');
+        }
+        
+        async function logout() {
+            try {
+                const response = await fetch('/api/logout', { method: 'POST' });
+                const data = await response.json();
+                
+                if (data.success && data.redirect_url) {
+                    window.location.replace(data.redirect_url);
+                } else {
+                    window.location.replace('/login');
+                }
+            } catch (error) {
+                console.error('Logout error:', error);
+                window.location.replace('/login');
+            }
+        }
+        
+        // Handle browser back/forward buttons
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) {
+                console.log('Page loaded from cache, checking authentication...');
+                checkAuth().then(isAuth => {
+                    if (isAuth) {
+                        loadUsers(1);
+                    }
+                });
+            }
+        });
+        
+        window.addEventListener('popstate', function() {
+            checkAuth().then(isAuth => {
+                if (isAuth) {
+                    loadUsers(currentPage);
+                }
+            });
+        });
+        
+        // Prevent form resubmission on back navigation
+        if (window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.href);
+        }
+        
+        // Initialize
+        checkAuth().then(isAuth => {
+            if (isAuth) {
+                loadUsers(1);
+            }
+        });
+    </script>
+</body>
+</html>

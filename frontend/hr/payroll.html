@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payroll Management - Profit Recovery ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --dark: #0f172a;
+            --dark-sidebar: #0c1a19;
+            --dark-sidebar-hover: #122e2b;
+            --dark-sidebar-active: #163d39;
+            --gray: #64748b;
+            --light-gray: #f1f5f9;
+            --border: #e2e8f0;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--light-gray); color: var(--dark); }
+        
+        .sidebar {
+            width: 280px;
+            background: var(--dark-sidebar);
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+        .sidebar-brand { padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-brand h2 { color: white; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .sidebar-brand h2 i { color: var(--primary); }
+        .sidebar-brand p { color: rgba(255,255,255,0.5); font-size: 0.7rem; margin-top: 0.25rem; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 0.25rem; padding: 1rem; }
+        .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; font-size: 0.9rem; }
+        .nav-item i { width: 20px; }
+        .nav-item:hover { background: var(--dark-sidebar-hover); color: white; }
+        .nav-item.active { background: var(--dark-sidebar-active); color: white; border-left: 3px solid var(--primary); }
+        .sidebar-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); background: var(--dark-sidebar); }
+        .user-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+        .user-avatar { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; }
+        .user-name { font-weight: 600; color: white; font-size: 0.9rem; }
+        .user-role { font-size: 0.7rem; opacity: 0.6; color: rgba(255,255,255,0.6); }
+        .logout-btn { width: 100%; padding: 0.75rem; background: rgba(239,68,68,0.2); border: none; border-radius: 8px; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        
+        .main-content { margin-left: 280px; padding: 2rem; min-height: 100vh; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .page-title h1 { font-size: 1.75rem; font-weight: 700; }
+        .page-title p { color: var(--gray); font-size: 0.85rem; margin-top: 0.25rem; }
+        .date-badge { background: var(--white); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; color: var(--gray); border: 1px solid var(--border); }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        .stat-card h3 { font-size: 0.85rem; color: var(--gray); margin-bottom: 0.5rem; }
+        .stat-number { font-size: 1.75rem; font-weight: 700; color: var(--dark); }
+        
+        .filters-bar {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .filter-item {
+            flex: 1;
+            min-width: 150px;
+        }
+        .filter-item label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+        .filter-item select, .filter-item input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        
+        .payroll-table-container {
+            background: var(--white);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+        .payroll-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .payroll-table th {
+            text-align: left;
+            padding: 1rem;
+            background: var(--light-gray);
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--gray);
+            border-bottom: 1px solid var(--border);
+        }
+        .payroll-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+        .text-right { text-align: right; }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-draft { background: var(--light-gray); color: var(--gray); }
+        .status-approved { background: #dcfce7; color: #166534; }
+        .status-paid { background: #dbeafe; color: #1e40af; }
+        
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+        .toast {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--success);
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand"><h2><i class="fas fa-chart-line"></i> Profit Recovery ERP</h2><p>Enterprise Resource Planning</p></div>
+        <div class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item"><i class="fas fa-tachometer-alt"></i><span>Dashboard</span></a>
+            <a href="/hr/dashboard" class="nav-item"><i class="fas fa-users"></i><span>HR Management</span></a>
+            <a href="/hr/employees" class="nav-item"><i class="fas fa-user-tie"></i><span>Employees</span></a>
+            <a href="/hr/attendance" class="nav-item"><i class="fas fa-calendar-check"></i><span>Attendance</span></a>
+            <a href="/hr/leaves" class="nav-item"><i class="fas fa-umbrella-beach"></i><span>Leaves</span></a>
+            <a href="/hr/payroll" class="nav-item active"><i class="fas fa-money-bill-wave"></i><span>Payroll</span></a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Admin User</div>
+                    <div class="user-role" id="userRole">Administrator</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Payroll Management</h1>
+                <p>Generate payroll, manage salaries, and process payments</p>
+            </div>
+            <div class="date-badge" id="currentDate"></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Employees</h3>
+                <div class="stat-number" id="totalEmployees">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Payroll</h3>
+                <div class="stat-number" id="totalPayroll">₹0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Avg Salary</h3>
+                <div class="stat-number" id="avgSalary">₹0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Processed</h3>
+                <div class="stat-number" id="processedCount">0</div>
+            </div>
+        </div>
+
+        <div class="filters-bar">
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Month</label>
+                    <select id="monthFilter">
+                        <option value="1">January</option>
+                        <option value="2">February</option>
+                        <option value="3">March</option>
+                        <option value="4">April</option>
+                        <option value="5">May</option>
+                        <option value="6">June</option>
+                        <option value="7">July</option>
+                        <option value="8">August</option>
+                        <option value="9">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Year</label>
+                    <select id="yearFilter"></select>
+                </div>
+                <div class="filter-item">
+                    <label>Employee</label>
+                    <select id="employeeFilter">
+                        <option value="">All Employees</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <button class="btn btn-primary" onclick="loadPayroll()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <button class="btn btn-success" onclick="generatePayroll()">
+                        <i class="fas fa-calculator"></i> Generate Payroll
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="payroll-table-container">
+            <table class="payroll-table">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Basic Salary</th>
+                        <th>Allowances</th>
+                        <th>Overtime</th>
+                        <th>Gross</th>
+                        <th>Deductions</th>
+                        <th>Net Payable</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </thead>
+                <tbody id="payrollTableBody"></tbody>
+             </table>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth() + 1;
+        
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function checkAuth() {
+            const response = await fetch('/api/check-auth');
+            const data = await response.json();
+            if (!data.authenticated) window.location.href = '/login';
+            document.getElementById('userName').textContent = data.user.full_name;
+            document.getElementById('userAvatar').textContent = data.user.full_name.charAt(0);
+            document.getElementById('userRole').textContent = data.user.role.replace('_', ' ').toUpperCase();
+        }
+
+        async function loadEmployees() {
+            const response = await fetch('/api/hr/employees?status=active&per_page=1000');
+            const data = await response.json();
+            const employees = data.items || [];
+            
+            const employeeSelect = document.getElementById('employeeFilter');
+            employeeSelect.innerHTML = '<option value="">All Employees</option>' + 
+                employees.map(emp => `<option value="${emp.id}">${emp.full_name} (${emp.employee_code})</option>`).join('');
+            
+            document.getElementById('totalEmployees').textContent = employees.length;
+        }
+
+        async function loadPayroll() {
+            const employeeId = document.getElementById('employeeFilter').value;
+            const month = document.getElementById('monthFilter').value;
+            const year = document.getElementById('yearFilter').value;
+            
+            let url = `/api/hr/payroll?month=${month}&year=${year}`;
+            if (employeeId) url += `&employee_id=${employeeId}`;
+            
+            const response = await fetch(url);
+            const payrolls = await response.json();
+            
+            const tbody = document.getElementById('payrollTableBody');
+            if (!payrolls || payrolls.length === 0) {
+                tbody.innerHTML = '57e7d57e8f<td colspan="10" style="text-align: center; padding: 2rem; color: var(--gray);"><i class="fas fa-chart-line"></i> No payroll records found. Click "Generate Payroll" to create.<\/td><\/tr>';
+                document.getElementById('totalPayroll').textContent = '₹0';
+                document.getElementById('avgSalary').textContent = '₹0';
+                document.getElementById('processedCount').textContent = '0';
+                return;
+            }
+            
+            let totalGross = 0;
+            let processed = 0;
+            
+            tbody.innerHTML = payrolls.map(payroll => {
+                totalGross += payroll.net_payable || 0;
+                if (payroll.status === 'paid') processed++;
+                
+                let statusClass = '';
+                if (payroll.status === 'draft') statusClass = 'status-draft';
+                else if (payroll.status === 'approved') statusClass = 'status-approved';
+                else if (payroll.status === 'paid') statusClass = 'status-paid';
+                
+                return `
+                    <tr>
+                        <td><strong>${payroll.employee_name || 'N/A'}</strong></td>
+                        <td>${payroll.department_name || '-'}</td>
+                        <td class="text-right">₹${(payroll.basic_salary || 0).toLocaleString()}</td>
+                        <td class="text-right">₹${(payroll.allowances || 0).toLocaleString()}</td>
+                        <td class="text-right">₹${(payroll.overtime || 0).toLocaleString()}</td>
+                        <td class="text-right">₹${(payroll.gross_earnings || 0).toLocaleString()}</td>
+                        <td class="text-right">₹${(payroll.total_deductions || 0).toLocaleString()}</td>
+                        <td class="text-right"><strong>₹${(payroll.net_payable || 0).toLocaleString()}</strong></td>
+                        <td><span class="status-badge ${statusClass}">${(payroll.status || 'draft').toUpperCase()}</span></td>
+                        <td>
+                            ${payroll.status === 'draft' ? 
+                                `<button class="btn btn-success" style="padding: 0.25rem 0.5rem;" onclick="approvePayroll(${payroll.id})">Approve</button>` : 
+                                payroll.status === 'approved' ? 
+                                `<button class="btn btn-primary" style="padding: 0.25rem 0.5rem;" onclick="markAsPaid(${payroll.id})">Pay</button>` : 
+                                '<span style="color: var(--success);">✓ Paid</span>'}
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+            
+            document.getElementById('totalPayroll').textContent = `₹${totalGross.toLocaleString()}`;
+            document.getElementById('avgSalary').textContent = `₹${Math.round(totalGross / payrolls.length).toLocaleString()}`;
+            document.getElementById('processedCount').textContent = processed;
+        }
+
+        async function generatePayroll() {
+            const month = document.getElementById('monthFilter').value;
+            const year = document.getElementById('yearFilter').value;
+            const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long' });
+            
+            if (!confirm(`Generate payroll for ${monthName} ${year}?`)) return;
+            
+            try {
+                const response = await fetch('/api/hr/payroll/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ month: parseInt(month), year: parseInt(year) })
+                });
+                
+                const data = await response.json();
+                showToast(data.message, 'success');
+                loadPayroll();
+            } catch (error) {
+                showToast('Failed to generate payroll', 'error');
+            }
+        }
+
+        async function approvePayroll(payrollId) {
+            if (!confirm('Approve this payroll record?')) return;
+            
+            try {
+                const response = await fetch(`/api/hr/payroll/${payrollId}/approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                if (response.ok) {
+                    showToast('Payroll approved successfully');
+                    loadPayroll();
+                } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to approve payroll', 'error');
+                }
+            } catch (error) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        async function markAsPaid(payrollId) {
+            if (!confirm('Mark this payroll as paid?')) return;
+            
+            try {
+                const response = await fetch(`/api/hr/payroll/${payrollId}/approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ mark_paid: true })
+                });
+                
+                if (response.ok) {
+                    showToast('Payroll marked as paid');
+                    loadPayroll();
+                } else {
+                    const error = await response.json();
+                    showToast(error.error || 'Failed to update status', 'error');
+                }
+            } catch (error) {
+                showToast('Network error', 'error');
+            }
+        }
+
+        function initYearFilter() {
+            const yearSelect = document.getElementById('yearFilter');
+            for (let i = currentYear - 2; i <= currentYear + 1; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = i;
+                if (i === currentYear) option.selected = true;
+                yearSelect.appendChild(option);
+            }
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/login';
+        }
+
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+        
+        document.getElementById('monthFilter').value = currentMonth;
+        initYearFilter();
+        
+        checkAuth();
+        loadEmployees();
+        loadPayroll();
+        
+        document.getElementById('monthFilter').addEventListener('change', loadPayroll);
+        document.getElementById('yearFilter').addEventListener('change', loadPayroll);
+        document.getElementById('employeeFilter').addEventListener('change', loadPayroll);
+    </script>
+</body>
+</html>

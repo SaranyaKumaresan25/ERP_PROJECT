@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leave Management - Profit Recovery ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --dark: #0f172a;
+            --dark-sidebar: #0c1a19;
+            --dark-sidebar-hover: #122e2b;
+            --dark-sidebar-active: #163d39;
+            --gray: #64748b;
+            --light-gray: #f1f5f9;
+            --border: #e2e8f0;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+        body { font-family: 'Inter', sans-serif; background: var(--light-gray); color: var(--dark); }
+        
+        .sidebar {
+            width: 280px;
+            background: var(--dark-sidebar);
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            z-index: 100;
+            overflow-y: auto;
+        }
+        .sidebar-brand { padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-brand h2 { color: white; font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .sidebar-brand h2 i { color: var(--primary); }
+        .sidebar-brand p { color: rgba(255,255,255,0.5); font-size: 0.7rem; margin-top: 0.25rem; }
+        .sidebar-nav { display: flex; flex-direction: column; gap: 0.25rem; padding: 1rem; }
+        .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; color: rgba(255,255,255,0.7); text-decoration: none; border-radius: 8px; font-size: 0.9rem; }
+        .nav-item i { width: 20px; }
+        .nav-item:hover { background: var(--dark-sidebar-hover); color: white; }
+        .nav-item.active { background: var(--dark-sidebar-active); color: white; border-left: 3px solid var(--primary); }
+        .sidebar-footer { position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); background: var(--dark-sidebar); }
+        .user-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+        .user-avatar { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; color: white; }
+        .user-name { font-weight: 600; color: white; font-size: 0.9rem; }
+        .user-role { font-size: 0.7rem; opacity: 0.6; color: rgba(255,255,255,0.6); }
+        .logout-btn { width: 100%; padding: 0.75rem; background: rgba(239,68,68,0.2); border: none; border-radius: 8px; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+        
+        .main-content { margin-left: 280px; padding: 2rem; min-height: 100vh; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .page-title h1 { font-size: 1.75rem; font-weight: 700; }
+        .page-title p { color: var(--gray); font-size: 0.85rem; margin-top: 0.25rem; }
+        .date-badge { background: var(--white); padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; color: var(--gray); border: 1px solid var(--border); }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background: var(--white);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid var(--border);
+        }
+        .stat-card h3 { font-size: 0.75rem; color: var(--gray); margin-bottom: 0.5rem; }
+        .stat-number { font-size: 1.5rem; font-weight: 700; color: var(--dark); }
+        
+        .filters-bar {
+            background: var(--white);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border);
+        }
+        .filter-group {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: flex-end;
+        }
+        .filter-item {
+            flex: 1;
+            min-width: 150px;
+        }
+        .filter-item label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 500;
+            color: var(--gray);
+            margin-bottom: 0.25rem;
+        }
+        .filter-item select, .filter-item input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .btn-warning { background: var(--warning); color: white; }
+        .btn-danger { background: var(--danger); color: white; }
+        
+        .leave-table-container {
+            background: var(--white);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+        }
+        .leave-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .leave-table th {
+            text-align: left;
+            padding: 1rem;
+            background: var(--light-gray);
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--gray);
+            border-bottom: 1px solid var(--border);
+        }
+        .leave-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.85rem;
+        }
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-approved { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+        .status-cancelled { background: #e2e3e5; color: #6c757d; }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--white);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .modal-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+        .modal-header h2 { font-size: 1.25rem; font-weight: 600; display: flex; align-items: center; gap: 0.5rem; }
+        .close-btn { background: none; border: none; font-size: 1.25rem; cursor: pointer; color: var(--gray); }
+        .modal-body { padding: 1.5rem; }
+        .modal-footer { padding: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; gap: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.85rem; }
+        .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; }
+        
+        .toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1100;
+        }
+        .toast {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 0.5rem;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            animation: slideIn 0.3s ease;
+            border-left: 4px solid var(--success);
+        }
+        .toast.warning { border-left-color: var(--warning); }
+        .toast.error { border-left-color: var(--danger); }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        @media (max-width: 1024px) {
+            .sidebar { transform: translateX(-100%); }
+            .main-content { margin-left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-brand"><h2><i class="fas fa-chart-line"></i> Profit Recovery ERP</h2><p>Enterprise Resource Planning</p></div>
+        <div class="sidebar-nav">
+            <a href="/hr/dashboard" class="nav-item"><i class="fas fa-users"></i><span>Dashboard</span></a>
+            <a href="/hr/employees" class="nav-item"><i class="fas fa-user-tie"></i><span>Employees</span></a>
+            <a href="/hr/attendance" class="nav-item"><i class="fas fa-calendar-check"></i><span>Attendance</span></a>
+            <a href="/hr/leaves" class="nav-item active"><i class="fas fa-umbrella-beach"></i><span>Leaves</span></a>
+            <a href="/hr/payroll" class="nav-item"><i class="fas fa-money-bill-wave"></i><span>Payroll</span></a>
+        </div>
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar">A</div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Admin User</div>
+                    <div class="user-role" id="userRole">Administrator</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sign Out</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Leave Management</h1>
+                <p>Manage employee leave requests, approvals, and send announcements</p>
+            </div>
+            <div class="date-badge" id="currentDate"></div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Requests</h3>
+                <div class="stat-number" id="totalRequests">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Pending</h3>
+                <div class="stat-number" id="pendingCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Approved</h3>
+                <div class="stat-number" id="approvedCount">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>On Leave Today</h3>
+                <div class="stat-number" id="onLeaveToday">0</div>
+            </div>
+        </div>
+
+        <div class="filters-bar">
+            <div class="filter-group">
+                <div class="filter-item">
+                    <label>Employee</label>
+                    <select id="employeeFilter">
+                        <option value="">All Employees</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <label>Status</label>
+                    <select id="statusFilter">
+                        <option value="">All</option>
+                        <option value="pending">Pending</option>
+                        <option value="approved">Approved</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="cancelled">Cancelled</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <button class="btn btn-primary" onclick="loadLeaveRequests()">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="leave-table-container">
+            <table class="leave-table">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Department</th>
+                        <th>Leave Type</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th>Days</th>
+                        <th>Reason</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="leaveTableBody"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Approve/Reject Modal -->
+    <div class="modal" id="approveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="approveModalTitle">Review Leave Request</h2>
+                <button class="close-btn" onclick="closeApproveModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="approveLeaveId">
+                <div class="form-group">
+                    <label>Employee Details</label>
+                    <p id="leaveEmployeeDetails" style="background: var(--light-gray); padding: 0.75rem; border-radius: 8px;"></p>
+                </div>
+                <div class="form-group">
+                    <label>Reason (for rejection)</label>
+                    <textarea id="rejectionReason" rows="3" placeholder="Provide reason for rejection..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeApproveModal()">Cancel</button>
+                <button class="btn btn-success" onclick="processLeave('approve')">Approve</button>
+                <button class="btn btn-danger" onclick="processLeave('reject')">Reject</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Cancel Leave Modal -->
+    <div class="modal" id="cancelLeaveModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-ban"></i> Cancel Approved Leave</h2>
+                <button class="close-btn" onclick="closeCancelModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="cancelLeaveId">
+                <div class="form-group">
+                    <label>Employee Details</label>
+                    <p id="cancelLeaveDetails" style="background: var(--light-gray); padding: 0.75rem; border-radius: 8px;"></p>
+                </div>
+                <div class="form-group">
+                    <label>Reason for Cancellation</label>
+                    <textarea id="cancelReason" rows="3" placeholder="e.g., Employee attended work on this date..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeCancelModal()">Close</button>
+                <button class="btn btn-danger" id="confirmCancelBtn" onclick="confirmCancelLeave()">
+                    <i class="fas fa-ban"></i> Cancel Leave
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script>
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'warning' ? 'exclamation-triangle' : 'exclamation-circle'}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        async function checkAuth() {
+            const response = await fetch('/api/check-auth');
+            const data = await response.json();
+            if (!data.authenticated) window.location.href = '/login';
+            document.getElementById('userName').textContent = data.user.full_name;
+            document.getElementById('userAvatar').textContent = data.user.full_name.charAt(0);
+            document.getElementById('userRole').textContent = data.user.role.replace('_', ' ').toUpperCase();
+        }
+
+        async function loadEmployees() {
+            const response = await fetch('/api/hr/employees?status=active&per_page=1000');
+            const data = await response.json();
+            const employees = data.items || [];
+            
+            const employeeSelect = document.getElementById('employeeFilter');
+            employeeSelect.innerHTML = '<option value="">All Employees</option>' + 
+                employees.map(emp => `<option value="${emp.id}">${escapeHtml(emp.full_name)} (${emp.employee_code}) - ${emp.department_name || 'No Dept'}</option>`).join('');
+        }
+
+        async function loadStats() {
+            const response = await fetch('/api/hr/leaves');
+            const leaves = await response.json();
+            
+            const total = leaves.length;
+            const pending = leaves.filter(l => l.status === 'pending').length;
+            const approved = leaves.filter(l => l.status === 'approved').length;
+            
+            const today = new Date().toISOString().split('T')[0];
+            const onLeaveToday = leaves.filter(l => 
+                l.status === 'approved' && 
+                l.start_date <= today && 
+                l.end_date >= today
+            ).length;
+            
+            document.getElementById('totalRequests').textContent = total;
+            document.getElementById('pendingCount').textContent = pending;
+            document.getElementById('approvedCount').textContent = approved;
+            document.getElementById('onLeaveToday').textContent = onLeaveToday;
+        }
+
+        async function loadLeaveRequests() {
+            const employeeId = document.getElementById('employeeFilter').value;
+            const status = document.getElementById('statusFilter').value;
+            
+            let url = '/api/hr/leaves';
+            const params = [];
+            if (employeeId) params.push(`employee_id=${employeeId}`);
+            if (status) params.push(`status=${status}`);
+            if (params.length) url += '?' + params.join('&');
+            
+            const response = await fetch(url);
+            const leaves = await response.json();
+            
+            const tbody = document.getElementById('leaveTableBody');
+            if (!leaves || leaves.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 2rem; color: var(--gray);"><i class="fas fa-calendar"></i> No leave requests found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = leaves.map(leave => {
+                let statusClass = '';
+                let actionsHtml = '';
+                
+                if (leave.status === 'pending') {
+                    statusClass = 'status-pending';
+                    actionsHtml = `<button class="btn btn-success" style="padding: 0.25rem 0.5rem;" onclick="openApproveModal(${leave.id}, '${escapeHtml(leave.employee_name)}', '${leave.leave_type}', '${leave.start_date}', '${leave.end_date}', ${leave.total_days})">
+                                    <i class="fas fa-check"></i> Review
+                                  </button>`;
+                } 
+                else if (leave.status === 'approved') {
+                    statusClass = 'status-approved';
+                    actionsHtml = `<button class="btn btn-warning" style="padding: 0.25rem 0.5rem; background: #f59e0b;" onclick="openCancelModal(${leave.id}, '${escapeHtml(leave.employee_name)}', '${leave.leave_type}', '${leave.start_date}', '${leave.end_date}', ${leave.total_days})">
+                                    <i class="fas fa-ban"></i> Cancel
+                                  </button>`;
+                } 
+                else if (leave.status === 'rejected') {
+                    statusClass = 'status-rejected';
+                    actionsHtml = '-';
+                }
+                else if (leave.status === 'cancelled') {
+                    statusClass = 'status-cancelled';
+                    actionsHtml = '<span style="color: var(--gray);">Cancelled</span>';
+                }
+                
+                return `
+                    <tr>
+                        <td><strong>${escapeHtml(leave.employee_name || 'N/A')}</strong><br><small style="color: var(--gray);">${leave.employee_code || ''}</small></td>
+                        <td>${escapeHtml(leave.department_name || '-')}</td>
+                        <td>${leave.leave_type ? leave.leave_type.toUpperCase() : '-'}</td>
+                        <td>${leave.start_date || '-'}</td>
+                        <td>${leave.end_date || '-'}</td>
+                        <td>${leave.total_days}</td>
+                        <td>${escapeHtml(leave.reason || '-')}</td>
+                        <td><span class="status-badge ${statusClass}">${leave.status ? leave.status.toUpperCase() : '-'}</span></td>
+                        <td>${actionsHtml}</td>
+                    </tr>
+                `;
+            }).join('');
+            
+            await loadStats();
+        }
+
+        function openApproveModal(leaveId, employeeName, leaveType, startDate, endDate, totalDays) {
+            document.getElementById('approveLeaveId').value = leaveId;
+            document.getElementById('leaveEmployeeDetails').innerHTML = `
+                <strong>${escapeHtml(employeeName)}</strong><br>
+                Leave Type: ${leaveType.toUpperCase()}<br>
+                Period: ${startDate} to ${endDate}<br>
+                Total Days: ${totalDays}
+            `;
+            document.getElementById('rejectionReason').value = '';
+            document.getElementById('approveModal').classList.add('active');
+        }
+
+        function closeApproveModal() {
+            document.getElementById('approveModal').classList.remove('active');
+        }
+
+        async function processLeave(action) {
+            const leaveId = document.getElementById('approveLeaveId').value;
+            const data = {
+                action: action,
+                reason: document.getElementById('rejectionReason').value
+            };
+            
+            const response = await fetch(`/api/hr/leaves/${leaveId}/approve`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(data)
+            });
+            
+            if (response.ok) {
+                showToast(`Leave ${action}d successfully`);
+                closeApproveModal();
+                loadLeaveRequests();
+            } else {
+                const error = await response.json();
+                showToast(error.error || `Failed to ${action} leave`, 'error');
+            }
+        }
+
+        function openCancelModal(leaveId, employeeName, leaveType, startDate, endDate, totalDays) {
+            document.getElementById('cancelLeaveId').value = leaveId;
+            document.getElementById('cancelLeaveDetails').innerHTML = `
+                <strong>${escapeHtml(employeeName)}</strong><br>
+                Leave Type: ${leaveType.toUpperCase()}<br>
+                Period: ${startDate} to ${endDate}<br>
+                Total Days: ${totalDays}
+            `;
+            document.getElementById('cancelReason').value = 'Employee attended work on leave date';
+            document.getElementById('cancelLeaveModal').classList.add('active');
+        }
+
+        function closeCancelModal() {
+            document.getElementById('cancelLeaveModal').classList.remove('active');
+        }
+
+        async function confirmCancelLeave() {
+            const leaveId = document.getElementById('cancelLeaveId').value;
+            const reason = document.getElementById('cancelReason').value;
+            
+            // Only ONE confirmation dialog
+            if (!confirm('⚠️ Are you sure you want to cancel this approved leave?\n\nThis will add the leave days back to the employee\'s balance.')) {
+                return;
+            }
+            
+            // Disable button to prevent double-click
+            const cancelBtn = document.getElementById('confirmCancelBtn');
+            const originalText = cancelBtn.innerHTML;
+            cancelBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Cancelling...';
+            cancelBtn.disabled = true;
+            
+            try {
+                const response = await fetch(`/api/hr/leaves/${leaveId}/cancel`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ reason: reason })
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    showToast('✅ Leave cancelled successfully');
+                    closeCancelModal();
+                    await loadLeaveRequests();
+                    await loadStats();
+                } else {
+                    showToast(result.error || 'Failed to cancel leave', 'error');
+                }
+            } catch (error) {
+                console.error('Cancel error:', error);
+                showToast('Network error: ' + error.message, 'error');
+            } finally {
+                cancelBtn.innerHTML = originalText;
+                cancelBtn.disabled = false;
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        async function logout() {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/login';
+        }
+
+        document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+        
+        // Check URL for cancel_leave parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        const cancelLeaveId = urlParams.get('cancel_leave');
+        if (cancelLeaveId) {
+            fetch(`/api/hr/leaves/${cancelLeaveId}`)
+                .then(res => res.json())
+                .then(leave => {
+                    openCancelModal(leave.id, leave.employee_name, leave.leave_type, leave.start_date, leave.end_date, leave.total_days);
+                })
+                .catch(err => console.error('Error fetching leave details:', err));
+        }
+        
+        checkAuth();
+        loadEmployees();
+        loadLeaveRequests();
+        
+        document.getElementById('employeeFilter').addEventListener('change', loadLeaveRequests);
+        document.getElementById('statusFilter').addEventListener('change', loadLeaveRequests);
+        
+        setInterval(() => { loadLeaveRequests(); }, 30000);
+    </script>
+</body>
+</html>

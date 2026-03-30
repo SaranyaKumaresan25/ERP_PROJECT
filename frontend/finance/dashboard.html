@@ -1,0 +1,124 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="/static/css/analytics.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            <h2>
+                <i class="fas fa-chart-line"></i>
+                Profit Recovery ERP
+            </h2>
+            <p>Enterprise Resource Planning</p>
+        </div>
+        
+        <div class="sidebar-nav">
+            <a href="/admin/dashboard" class="nav-item active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/admin/users" class="nav-item">
+                <i class="fas fa-users"></i>
+                <span>User Management</span>
+            </a>
+            <a href="/inventory/dashboard" class="nav-item">
+                <i class="fas fa-chart-simple"></i>
+                <span>Inventory</span>
+            </a>
+            <a href="/sales/pos" class="nav-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span>POS Scanner</span>
+            </a>
+            <a href="/hr/dashboard" class="nav-item">
+        <i class="fas fa-user-tie"></i>
+        <span>HR Management</span>
+    </a>
+            <a href="/finance/dashboard" class="nav-item active">
+    <i class="fas fa-wallet"></i>
+    <span>Finance Dashboard</span>
+</a>
+        </div>
+        
+        <div class="sidebar-footer">
+            <div class="user-info">
+                <div class="user-avatar" id="userAvatar"></div>
+                <div class="user-details">
+                    <div class="user-name" id="userName">Admin User</div>
+                    <div class="user-role" id="userRole">Administrator</div>
+                </div>
+            </div>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i>
+                Sign Out
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="top-bar">
+            <div class="page-title">
+                <h1>Finance Dashboard</h1>
+                <p>Overview of system performance and key metrics</p>
+            </div>
+            <div class="date-badge" id="currentDate"></div>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>Revenue</h3>
+            <div class="stat-number">₹{{ revenue }}</div>
+        </div>
+        <div class="stat-icon success">
+            <i class="fas fa-rupee-sign"></i>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>Expense</h3>
+            <div class="stat-number">₹{{ expense }}</div>
+        </div>
+        <div class="stat-icon danger">
+            <i class="fas fa-credit-card"></i>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-info">
+            <h3>Profit</h3>
+            <div class="stat-number">₹{{ profit }}</div>
+        </div>
+        <div class="stat-icon primary">
+            <i class="fas fa-chart-line"></i>
+        </div>
+    </div>
+
+</div>
+
+<div class="chart-card" style="margin-top:20px;">
+    <h3>🔥 Top Selling Products</h3>
+
+    {% for p in top_products %}
+    <div style="display:flex; justify-content:space-between; padding:10px;">
+        <span>{{ p.product_name }}</span>
+        <span class="badge">{{ p.total }}</span>
+    </div>
+    {% endfor %}
+</div>
+        <!-- Charts & Activity Section -->
+        
+</body>
+</html>

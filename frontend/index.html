@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profit Recovery ERP - Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="css/erp-style.css">
+    <style>
+        /* Dashboard specific styles */
+        .recent-activity {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .activity-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: var(--light-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+        }
+
+        .activity-details {
+            flex: 1;
+        }
+
+        .activity-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .activity-time {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .quick-stat {
+            background: var(--light-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .quick-stat .value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .quick-stat .label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+    </style>
+</head>
+<body>
+    <!-- Fixed Navbar -->
+    <nav class="erp-navbar">
+        <div class="navbar-brand">
+            <div class="brand-logo">
+                <i class="fas fa-cubes"></i>
+            </div>
+            <div class="brand-text">
+                <h1>Profit Recovery ERP</h1>
+                <span>Inventory Management System</span>
+            </div>
+        </div>
+
+        <div class="navbar-menu">
+            <a href="/" class="nav-item active">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="/products" class="nav-item">
+                <i class="fas fa-box"></i>
+                <span>Products</span>
+            </a>
+            <a href="/suppliers" class="nav-item">
+                <i class="fas fa-truck"></i>
+                <span>Suppliers</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-layer-group"></i>
+                <span>Batches</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span>Reports</span>
+            </a>
+            <a href="#" class="nav-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+
+        <div class="navbar-right">
+            <div class="notification-badge">
+                <i class="fas fa-bell"></i>
+                <span class="badge">3</span>
+            </div>
+            <div class="user-profile">
+                <div class="avatar">A</div>
+                <div class="user-info">
+                    <div class="name">Admin User</div>
+                    <div class="role">System Administrator</div>
+                </div>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="page-header">
+            <div class="page-title">
+                <h2>Dashboard</h2>
+                <p>Welcome back! Here's what's happening with your inventory.</p>
+            </div>
+            <div class="action-bar">
+                <button class="btn btn-primary" onclick="window.location.href='/products'">
+                    <i class="fas fa-plus"></i> Add Product
+                </button>
+                <button class="btn btn-secondary" onclick="scanBarcode()">
+                    <i class="fas fa-camera"></i> Scan Barcode
+                </button>
+            </div>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid" id="dashboardStats">
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Total Products</h3>
+                    <div class="stat-number" id="totalProducts">-</div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-arrow-up"></i> 12% from last month
+                    </div>
+                </div>
+                <div class="stat-icon">
+                    <i class="fas fa-box"></i>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Low Stock Items</h3>
+                    <div class="stat-number" id="lowStockItems">-</div>
+                    <div class="stat-trend trend-down">
+                        <i class="fas fa-exclamation-triangle"></i> Need reorder
+                    </div>
+                </div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                    <i class="fas fa-exclamation"></i>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Expiring Soon</h3>
+                    <div class="stat-number" id="expiringSoon">-</div>
+                    <div class="stat-trend trend-down">
+                        <i class="fas fa-clock"></i> Within 7 days
+                    </div>
+                </div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+            </div>
+
+            <div class="stat-card">
+                <div class="stat-info">
+                    <h3>Total Suppliers</h3>
+                    <div class="stat-number" id="totalSuppliers">-</div>
+                    <div class="stat-trend trend-up">
+                        <i class="fas fa-check-circle"></i> Active partners
+                    </div>
+                </div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                    <i class="fas fa-handshake"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions & Recent Activity -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem;">
+            <!-- Quick Actions -->
+            <div class="recent-activity">
+                <h3 style="margin-bottom: 1rem;">Quick Actions</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                    <button class="btn btn-secondary" onclick="quickAction('scan')">
+                        <i class="fas fa-camera"></i> Scan Barcode
+                    </button>
+                    <button class="btn btn-secondary" onclick="quickAction('add')">
+                        <i class="fas fa-plus"></i> Add Product
+                    </button>
+                    <button class="btn btn-secondary" onclick="quickAction('receive')">
+                        <i class="fas fa-truck-loading"></i> Receive Stock
+                    </button>
+                    <button class="btn btn-secondary" onclick="quickAction('report')">
+                        <i class="fas fa-file-pdf"></i> Generate Report
+                    </button>
+                </div>
+
+                <div class="quick-stats" style="margin-top: 1.5rem;">
+                    <div class="quick-stat">
+                        <div class="value" id="todayValue">₹0</div>
+                        <div class="label">Today's Receipts</div>
+                    </div>
+                    <div class="quick-stat">
+                        <div class="value" id="pendingOrders">0</div>
+                        <div class="label">Pending Orders</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="recent-activity">
+                <h3 style="margin-bottom: 1rem;">Recent Activity</h3>
+                <div id="recentActivities">
+                    <!-- Will be populated by JavaScript -->
+                    <div class="activity-item">
+                        <div class="activity-icon">
+                            <i class="fas fa-box"></i>
+                        </div>
+                        <div class="activity-details">
+                            <div class="activity-title">Loading...</div>
+                            <div class="activity-time">Just now</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Expiring Products Alert -->
+        <div style="margin-top: 2rem; background: #fff3cd; border: 1px solid #ffeeba; border-radius: 12px; padding: 1rem; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <i class="fas fa-exclamation-triangle" style="color: #856404; font-size: 1.5rem;"></i>
+                <div>
+                    <strong style="color: #856404;">Products Expiring Soon!</strong>
+                    <p style="color: #856404; margin:
