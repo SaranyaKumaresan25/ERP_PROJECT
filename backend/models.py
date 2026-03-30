@@ -557,13 +557,9 @@ class Employee(db.Model):
     department_id = db.Column(db.Integer, db.ForeignKey('departments.id'))
     position = db.Column(db.String(100))
     job_title = db.Column(db.String(100))
-    employment_type = db.Column(db.Enum(
-    "Permanent",
-    "Contract",
-    "Intern",
-    "Trainee",
-    name='employmenttype'
-))
+    # MERGED: Includes all options from both versions
+    employment_type = db.Column(db.Enum('full_time', 'part_time', 'contract', 'intern', 'trainee', 'Permanent'), 
+                                default='full_time')
     reporting_manager_id = db.Column(db.Integer, db.ForeignKey('employees.id'))
     
     # Personal Information
@@ -699,8 +695,6 @@ class Employee(db.Model):
             'esi_number': self.esi_number,
             'profile_photo': self.profile_photo
         }
-
-
 class Attendance(db.Model):
     __tablename__ = 'attendance'
     
